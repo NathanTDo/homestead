@@ -1,0 +1,2 @@
+-- Supabase seed file
+-- Populated in Phase 2 with the initial plant catalog (15 plants).

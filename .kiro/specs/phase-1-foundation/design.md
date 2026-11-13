@@ -26,6 +26,7 @@ Phase 1 establishes the project foundation: Expo + TypeScript initialization, Ex
 | `expo-constants` | App configuration access |
 | `react-native-safe-area-context` | Safe area insets |
 | `react-native-screens` | Native screen management |
+| `@react-native-async-storage/async-storage` | Supabase session storage adapter |
 | `jest-expo` | Jest preset for Expo |
 | `@testing-library/react-native` | Component testing |
 | `eslint-config-expo` | ESLint config for Expo |
@@ -134,6 +135,7 @@ The Supabase client is initialized as a singleton in `src/services/supabase/clie
 
 ```typescript
 import { createClient } from '@supabase/supabase-js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -142,10 +144,19 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables. Check .env file.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storage: AsyncStorage,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
+  },
+});
 ```
 
-The env check at module load time fails fast if configuration is missing, which surfaces the problem during development rather than at runtime.
+Two important notes:
+- The env check at module load time fails fast if configuration is missing, which surfaces the problem during development rather than at runtime.
+- `AsyncStorage` is required as the session storage adapter in React Native. Without it, auth sessions are not persisted across app restarts. `detectSessionInUrl: false` disables URL-based session detection, which is not applicable in a native app.
 
 ## Code Quality Configuration
 
