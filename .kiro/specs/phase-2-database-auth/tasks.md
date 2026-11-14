@@ -1,4 +1,4 @@
-# Tasks: Phase 2 — Database and Authentication
+# Tasks: Phase 2 — Database
 
 ## 1. Initialize Supabase Project
 
