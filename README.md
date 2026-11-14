@@ -94,14 +94,14 @@ Variables prefixed with `EXPO_PUBLIC_*` are exposed to the client via `process.e
 homestead/
 ├── app/                        # Expo Router (file-based routing)
 │   ├── _layout.tsx             # Root layout
-│   ├── (auth)/                 # Authentication screens (Phase 2)
+│   ├── (auth)/                 # Authentication screens (Phase 3)
 │   ├── (onboarding)/           # Onboarding survey + farm creation (Phase 3)
 │   └── (tabs)/                 # Main app navigation
 │       ├── _layout.tsx         # Tab navigation config
 │       ├── index.tsx           # Home tab
 │       ├── calendar.tsx        # Calendar tab (Phase 5)
 │       ├── plants.tsx          # Plants tab (Phase 3)
-│       └── profile.tsx         # Profile tab (Phase 2)
+│       └── profile.tsx         # Profile tab (Phase 3)
 │
 ├── src/                        # Application source code
 │   ├── components/              # Reusable UI components

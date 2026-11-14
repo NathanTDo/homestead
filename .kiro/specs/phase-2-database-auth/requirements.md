@@ -1,4 +1,4 @@
-# Requirements: Phase 2 — Database and Authentication
+# Requirements: Phase 2 — Database
 
 ## 1. Database Migrations
 
@@ -49,13 +49,13 @@ The system shall automatically create a `profiles` row when a new user signs up,
 ### REQ-015: Updated_at Triggers
 The system shall automatically update the `updated_at` column on all tables that have one whenever a row is updated.
 
-## 3. Authentication
+## 3. Authentication (Backend)
 
 ### REQ-016: Supabase Auth
 The system shall use Supabase Auth with email and password authentication for the MVP.
 
-### REQ-017: Auth UI
-The system shall provide sign-in and sign-up screens in the `(auth)` route group.
+### REQ-017: Auth UI (moved to Phase 3)
+Sign-in and sign-up screens, auth state routing, and sign-out are implemented in Phase 3 (see Phase 3 REQ-001 to REQ-003). Phase 2 covers only the backend: Supabase Auth configuration and the profile auto-creation trigger.
 
 ## 4. Row Level Security
 

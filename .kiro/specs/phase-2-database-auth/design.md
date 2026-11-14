@@ -1,8 +1,8 @@
-# Design: Phase 2 — Database and Authentication
+# Design: Phase 2 — Database
 
 ## Overview
 
-Phase 2 implements the full database schema, authentication, Row Level Security, and seed data. This is the data foundation for all subsequent phases. The schema is designed for future multi-tenant support (farm_members table) even though the MVP has one user per farm.
+Phase 2 implements the full database schema, Row Level Security, seed data, and the repository layer. Supabase Auth is configured here (email/password), but the auth screens are built in Phase 3. This is the data foundation for all subsequent phases. The schema is designed for future multi-tenant support (farm_members table) even though the MVP has one user per farm.
 
 ## Database Schema
 
@@ -315,13 +315,9 @@ CREATE POLICY "Authenticated users can read care rules"
 
 No INSERT/UPDATE/DELETE policies on catalog tables — only the service role (used by Edge Functions and seed scripts) can write.
 
-## Authentication
+## Authentication (Backend)
 
-Supabase Auth with email/password. The auth screens live in `app/(auth)/` with:
-- `login.tsx` — email and password sign-in
-- `signup.tsx` — email and password sign-up
-
-After authentication, the root layout checks onboarding state to route to either `(onboarding)` or `(tabs)`.
+Supabase Auth with email/password is enabled in `supabase/config.toml`. The `handle_new_user` trigger creates a profile on signup. The auth screens (`login.tsx`, `signup.tsx`), auth state routing, and sign-out are built in Phase 3.
 
 ## Seed Data
 
@@ -339,7 +335,7 @@ ON CONFLICT (slug) DO NOTHING;
 
 ## Out of Scope for Phase 2
 
-- Auth UI implementation (screens built in Phase 3, but auth config is done here)
+- Auth UI, auth state routing, and sign-out (Phase 3). Only backend auth config is done here.
 - Onboarding survey UI (Phase 3)
 - Plant catalog UI (Phase 3)
 - Growing template seeds (Phase 4)

@@ -108,13 +108,13 @@ Expo Router uses file-based routing. Route groups (parenthesized directories) or
 
 ### Root Layout (`app/_layout.tsx`)
 
-For Phase 1, the root layout renders the `(tabs)` group directly. In Phase 2, it will conditionally render `(auth)`, `(onboarding)`, or `(tabs)` based on authentication and onboarding state.
+For Phase 1, the root layout renders the `(tabs)` group directly. In Phase 3, it will conditionally render `(auth)`, `(onboarding)`, or `(tabs)` based on authentication and onboarding state.
 
 ### Route Groups
 
 | Group | Purpose | Phase Implemented |
 |---|---|---|
-| `(auth)` | Login and signup screens | Phase 2 |
+| `(auth)` | Login and signup screens | Phase 3 |
 | `(onboarding)` | Survey and farm creation | Phase 3 |
 | `(tabs)` | Main application navigation | Phase 1 (shell only) |
 
@@ -127,7 +127,7 @@ Tabs are configured in `app/(tabs)/_layout.tsx` using Expo Router's `Tabs` compo
 | Home | `index` | home | Phase 1 (placeholder) |
 | Calendar | `calendar` | calendar | Phase 5 |
 | Plants | `plants` | leaf | Phase 3 |
-| Profile | `profile` | user | Phase 2 |
+| Profile | `profile` | user | Phase 3 |
 
 ## Supabase Client Setup
 
@@ -210,7 +210,7 @@ Excludes:
 
 ## Out of Scope for Phase 1
 
-- Authentication UI and logic (Phase 2)
+- Authentication UI and logic (Phase 3)
 - Database migrations and schema (Phase 2)
 - RLS policies (Phase 2)
 - Onboarding survey and farm creation (Phase 3)
