@@ -17,6 +17,8 @@ export interface OnboardingData {
   preferred_seasons?: Season[];
   interested_produce?: string[];
   experience_level?: string;
+  /** Set to true when the user finishes onboarding (farm created). */
+  completed?: boolean;
 }
 
 export interface Profile {
