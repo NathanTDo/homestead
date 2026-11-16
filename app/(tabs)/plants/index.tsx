@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, SearchInput } from '@/components/common';
 import { PlantCard, YourCrops } from '@/components/plants';
 import { Text, View } from '@/components/Themed';
@@ -10,6 +11,7 @@ import type { Plant } from '@/types';
 
 export default function PlantsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const { plants, allPlants, loading, error, reload } = usePlants(query);
   const { crops } = useFarm();
@@ -20,7 +22,8 @@ export default function PlantsScreen() {
   const openPlant = (plant: Plant) => router.push(`/plants/${plant.slug}`);
 
   return (
-    <View style={styles.container}>
+    // This screen has no header, so it keeps its content below the status bar / notch itself.
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.search}>
         <SearchInput value={query} onChangeText={setQuery} placeholder="Search plants" />
       </View>

@@ -15,7 +15,7 @@ export function YourCrops({ plants, onPressPlant }: YourCropsProps) {
   return (
     <View style={styles.container}>
       <View style={styles.titleRow}>
-        <Text style={styles.title}>Your crops</Text>
+        <Text style={styles.title}>Your Crops</Text>
         <Text accessibilityLabel={`${plants.length} of ${MAX_ACTIVE_CROPS} crops selected`}>
           {plants.length} / {MAX_ACTIVE_CROPS}
         </Text>
@@ -40,7 +40,7 @@ export function YourCrops({ plants, onPressPlant }: YourCropsProps) {
           ))}
         </View>
       )}
-      <Text style={styles.browse}>Browse all</Text>
+      <Text style={styles.browse}>Browse All</Text>
     </View>
   );
 }
