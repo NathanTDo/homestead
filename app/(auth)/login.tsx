@@ -64,7 +64,7 @@ export default function LoginScreen() {
         <Button title="Sign in" onPress={handleSubmit} loading={submitting} />
         <View style={styles.footer}>
           <Text>No account?</Text>
-          <Button title="Sign up" variant="link" onPress={() => router.replace('./signup')} />
+          <Button title="Sign up" variant="link" onPress={() => router.replace('/signup')} />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
