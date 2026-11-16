@@ -3,15 +3,27 @@ import { Tabs } from 'expo-router';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
+import { MAX_ACTIVE_CROPS } from '@/features/crops';
+import { FarmProvider, useFarm } from '@/features/farm';
 
 export default function TabLayout() {
+  return (
+    <FarmProvider>
+      <TabsNavigator />
+    </FarmProvider>
+  );
+}
+
+function TabsNavigator() {
   const colorScheme = useColorScheme();
+  const { crops } = useFarm();
 
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme].tint,
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
@@ -30,6 +42,8 @@ export default function TabLayout() {
         name="plants"
         options={{
           title: 'Plants',
+          headerShown: false, // the nested stack in plants/ draws its own header
+          tabBarBadge: crops.length > 0 ? `${crops.length}/${MAX_ACTIVE_CROPS}` : undefined,
           tabBarIcon: ({ color }) => <Ionicons name="leaf" size={24} color={color as string} />,
         }}
       />

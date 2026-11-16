@@ -1,7 +1,10 @@
 import { Stack } from 'expo-router';
 
-// Placeholder layout for the (auth) route group.
-// Authentication screens (login, signup) will be implemented in Phase 3.
 export default function AuthLayout() {
-  return <Stack />;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="login" />
+      <Stack.Screen name="signup" />
+    </Stack>
+  );
 }
