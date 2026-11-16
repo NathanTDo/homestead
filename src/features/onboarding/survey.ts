@@ -1,4 +1,6 @@
+import { MAX_ACTIVE_CROPS } from '@/features/crops';
 import type { OnboardingData, Season } from '@/types';
+import { getErrorMessage } from '@/utils/errors';
 
 export const FARMING_TYPES = ['outdoor', 'indoor', 'greenhouse', 'mixed'] as const;
 export const EXPERIENCE_LEVELS = ['beginner', 'intermediate', 'advanced'] as const;
@@ -14,7 +16,7 @@ export interface SurveyAnswers {
   farmingLocation: string;
   farmingType: FarmingType | null;
   seasons: Season[];
-  /** Plant names from the catalog. */
+  /** Slugs of the catalog plants the user wants to start with (at most MAX_ACTIVE_CROPS). */
   produce: string[];
   experienceLevel: ExperienceLevel | null;
 }
@@ -31,6 +33,9 @@ export const EMPTY_SURVEY: SurveyAnswers = {
 export function validateSurvey(answers: SurveyAnswers): string | null {
   if (!answers.farmingType) return 'Choose a type of farming.';
   if (!answers.experienceLevel) return 'Choose your experience level.';
+  if (answers.produce.length > MAX_ACTIVE_CROPS) {
+    return `Choose up to ${MAX_ACTIVE_CROPS} crops to start with.`;
+  }
   if (answers.farmingLocation.trim().length > MAX_LOCATION_LENGTH) {
     return `Location must be ${MAX_LOCATION_LENGTH} characters or fewer.`;
   }
@@ -60,9 +65,15 @@ export function buildOnboardingData(answers: SurveyAnswers): OnboardingData {
 
 /** Maps a create_farm_with_member error to a message for the user. */
 export function describeCreateFarmError(error: unknown): string {
-  const message = error instanceof Error ? error.message : '';
+  const message = getErrorMessage(error);
   if (message.includes('invalid_farm_name')) return 'Enter a farm name up to 60 characters.';
   if (message.includes('not_authenticated')) return 'Your session expired. Sign in again.';
+  if (message.includes('too_many_crops')) {
+    return `Choose up to ${MAX_ACTIVE_CROPS} crops to start with.`;
+  }
+  if (message.includes('invalid_plant')) {
+    return 'One of the crops you chose is no longer available. Go back and choose again.';
+  }
   if (/network|fetch|connect|timed? ?out/i.test(message)) {
     return 'Could not reach the server. Check your connection and try again.';
   }
@@ -71,5 +82,5 @@ export function describeCreateFarmError(error: unknown): string {
 
 /** True when the error means this account has already finished onboarding. */
 export function isAlreadyOnboardedError(error: unknown): boolean {
-  return error instanceof Error && error.message.includes('already_onboarded');
+  return getErrorMessage(error).includes('already_onboarded');
 }

@@ -10,7 +10,7 @@ export function usePlants(searchQuery: string) {
     'plants',
   );
   const plants = useMemo(() => (data ? filterPlants(data, searchQuery) : []), [data, searchQuery]);
-  return { plants, totalCount: data?.length ?? 0, loading, error, reload };
+  return { plants, allPlants: data ?? [], loading, error, reload };
 }
 
 export function usePlant(slug: string) {

@@ -36,30 +36,31 @@
 
 - [x] 5.1 Create `app/(tabs)/plants/[slug].tsx` detail screen
 - [x] 5.2 Display plant name, description, image, and growing seasons placeholder
-- [ ] 5.3 Implement "Add to Farm" button that calls `cropRepository.addCrop()`
-- [ ] 5.4 Show "Added" state if plant is already in user's crops
-- [ ] 5.5 Add "Remove" option for planned crops (calls `cropRepository.archiveCrop()`)
+- [x] 5.3 Implement "Add to Farm" button that calls `cropRepository.addCrop()`
+- [x] 5.4 Show "Added" state if plant is already in user's crops
+- [x] 5.5 Add "Remove" option for planned crops (calls `cropRepository.archiveCrop()`)
 
 ## 6. Plant Selection Management
 
-- [ ] 6.1 Create `useActiveCrops(farmId)` hook fetching planned and active crops
-- [ ] 6.2 Display crop count badge "X / 5" on plants tab
-- [ ] 6.3 Disable "Add to Farm" button when 5 crops are selected
-- [ ] 6.4 Handle five-crop limit error from database trigger (show message)
-- [ ] 6.5 Display "Your Crops" section showing selected plants
+- [x] 6.1 Create `useActiveCrops(farmId)` hook fetching planned and active crops
+- [x] 6.2 Display crop count badge "X / 5" on plants tab
+- [x] 6.3 Disable "Add to Farm" button when 5 crops are selected
+- [x] 6.4 Handle five-crop limit error from database trigger (show message)
+- [x] 6.5 Display "Your Crops" section showing selected plants
 
 ## 7. Profile Screen
 
-- [ ] 7.1 Create `app/(tabs)/profile.tsx` displaying display name and farm name
+- [x] 7.1 Create `app/(tabs)/profile.tsx` displaying display name and farm name
 - [x] 7.2 Add sign-out button calling `supabase.auth.signOut()`
-- [ ] 7.3 Fetch user profile and farm data via repositories
+- [x] 7.3 Fetch user profile and farm data via repositories
 
 ## 8. Repository Layer
+<!-- NOTE: implemented as searchPlants/getPlantBySlug, listCrops/createCrop/archiveCrop, getFarmForUser/createFarmWithMember, getProfile/updateProfile (isOnboarded is a pure helper in features/auth). -->
 
-- [ ] 8.1 Implement `plantRepository.getAll()`, `getBySlug()`, `searchByName()`
-- [ ] 8.2 Implement `cropRepository.getActiveCrops()`, `addCrop()`, `archiveCrop()`
-- [ ] 8.3 Implement `farmRepository.getFarmForUser()`, `createFarmWithMember()`
-- [ ] 8.4 Implement `profileRepository.getProfile()`, `updateProfile()`, `isOnboarded()`
+- [x] 8.1 Implement `plantRepository.getAll()`, `getBySlug()`, `searchByName()`
+- [x] 8.2 Implement `cropRepository.getActiveCrops()`, `addCrop()`, `archiveCrop()`
+- [x] 8.3 Implement `farmRepository.getFarmForUser()`, `createFarmWithMember()`
+- [x] 8.4 Implement `profileRepository.getProfile()`, `updateProfile()`, `isOnboarded()`
 
 ## 9. Verification
 

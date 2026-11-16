@@ -22,6 +22,12 @@ describe('validateSurvey', () => {
     expect(validateSurvey({ ...valid, farmingType: null })).toMatch(/type of farming/i);
     expect(validateSurvey({ ...valid, experienceLevel: null })).toMatch(/experience/i);
   });
+  it('allows up to 5 starting crops and rejects more', () => {
+    expect(validateSurvey({ ...valid, produce: ['a', 'b', 'c', 'd', 'e'] })).toBeNull();
+    expect(validateSurvey({ ...valid, produce: ['a', 'b', 'c', 'd', 'e', 'f'] })).toMatch(
+      /up to 5/,
+    );
+  });
   it('rejects a location over 100 characters', () => {
     expect(validateSurvey({ ...valid, farmingLocation: 'x'.repeat(101) })).toMatch(/100/);
   });
@@ -67,6 +73,9 @@ describe('create farm errors', () => {
   it('maps known database errors to messages', () => {
     expect(describeCreateFarmError(new Error('invalid_farm_name'))).toMatch(/farm name/i);
     expect(describeCreateFarmError(new Error('not_authenticated'))).toMatch(/sign in/i);
+    expect(describeCreateFarmError(new Error('too_many_crops'))).toMatch(/up to 5/);
+    expect(describeCreateFarmError(new Error('invalid_plant'))).toMatch(/no longer available/);
+    expect(describeCreateFarmError({ message: 'already_onboarded' })).toMatch(/try again/i);
     expect(describeCreateFarmError(new Error('Network request failed'))).toMatch(/connection/i);
     expect(describeCreateFarmError('weird')).toMatch(/try again/i);
   });

@@ -13,6 +13,8 @@ interface ChipSelectProps<T extends string> {
   onChange: (next: T[]) => void;
   /** Allow several chips to be selected. Default is a single choice. */
   multiple?: boolean;
+  /** With `multiple`, the most chips that can be selected. The rest are disabled once reached. */
+  maxSelected?: number;
 }
 
 export function ChipSelect<T extends string>({
@@ -21,7 +23,9 @@ export function ChipSelect<T extends string>({
   selected,
   onChange,
   multiple = false,
+  maxSelected,
 }: ChipSelectProps<T>) {
+  const atLimit = multiple && maxSelected !== undefined && selected.length >= maxSelected;
   function toggle(value: T) {
     const isSelected = selected.includes(value);
     if (multiple) {
@@ -37,13 +41,19 @@ export function ChipSelect<T extends string>({
       <View style={styles.chips}>
         {options.map((option) => {
           const isSelected = selected.includes(option.value);
+          const disabled = atLimit && !isSelected;
           return (
             <Pressable
               key={option.value}
               accessibilityRole="button"
-              accessibilityState={{ selected: isSelected }}
+              accessibilityState={{ selected: isSelected, disabled }}
+              disabled={disabled}
               onPress={() => toggle(option.value)}
-              style={[styles.chip, isSelected && styles.chipSelected]}
+              style={[
+                styles.chip,
+                isSelected && styles.chipSelected,
+                disabled && styles.chipDisabled,
+              ]}
             >
               <Text style={isSelected ? styles.chipTextSelected : styles.chipText}>
                 {option.label}
@@ -68,6 +78,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   chipSelected: { backgroundColor: '#2f7d32', borderColor: '#2f7d32' },
+  chipDisabled: { opacity: 0.4 },
   chipText: { fontSize: 14 },
   chipTextSelected: { fontSize: 14, color: '#fff', fontWeight: '600' },
 });

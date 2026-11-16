@@ -13,6 +13,7 @@ import {
   type ExperienceLevel,
   type FarmingType,
 } from '@/features/onboarding';
+import { MAX_ACTIVE_CROPS } from '@/features/crops';
 import * as plantRepository from '@/repositories/plantRepository';
 import type { Season } from '@/types';
 
@@ -28,14 +29,17 @@ export default function SurveyScreen() {
   const router = useRouter();
   const { answers, updateAnswers } = useOnboarding();
   const [error, setError] = useState<string | null>(null);
-  const [plantNames, setPlantNames] = useState<string[] | null>(null);
+  const [plantOptions, setPlantOptions] = useState<ChipOption<string>[] | null>(null);
   const [plantsFailed, setPlantsFailed] = useState(false);
 
   useEffect(() => {
     let active = true;
     plantRepository
       .searchPlants()
-      .then((plants) => active && setPlantNames(plants.map((p) => p.name)))
+      .then(
+        (plants) =>
+          active && setPlantOptions(plants.map((p) => ({ value: p.slug, label: p.name }))),
+      )
       .catch(() => active && setPlantsFailed(true));
     return () => {
       active = false;
@@ -79,13 +83,14 @@ export default function SurveyScreen() {
         multiple
       />
 
-      {plantNames ? (
+      {plantOptions ? (
         <ChipSelect<string>
-          label="Crops you're interested in (optional)"
-          options={plantNames.map((name) => ({ value: name, label: name }))}
+          label={`Crops to start with (optional, up to ${MAX_ACTIVE_CROPS})`}
+          options={plantOptions}
           selected={answers.produce}
           onChange={(produce) => updateAnswers({ produce })}
           multiple
+          maxSelected={MAX_ACTIVE_CROPS}
         />
       ) : plantsFailed ? (
         <Text style={styles.note}>Could not load the crop list. You can skip this question.</Text>

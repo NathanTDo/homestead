@@ -2,14 +2,22 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet } from 'react-native';
 import { Button, SearchInput } from '@/components/common';
-import { PlantCard } from '@/components/plants';
+import { PlantCard, YourCrops } from '@/components/plants';
 import { Text, View } from '@/components/Themed';
+import { useFarm } from '@/features/farm';
 import { usePlants } from '@/features/plants';
+import type { Plant } from '@/types';
 
 export default function PlantsScreen() {
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const { plants, loading, error, reload } = usePlants(query);
+  const { plants, allPlants, loading, error, reload } = usePlants(query);
+  const { crops } = useFarm();
+
+  const cropPlants = crops
+    .map((crop) => allPlants.find((plant) => plant.id === crop.plant_id))
+    .filter((plant): plant is Plant => plant !== undefined);
+  const openPlant = (plant: Plant) => router.push(`/plants/${plant.slug}`);
 
   return (
     <View style={styles.container}>
@@ -31,9 +39,8 @@ export default function PlantsScreen() {
           numColumns={2}
           contentContainerStyle={styles.list}
           keyboardShouldPersistTaps="handled"
-          renderItem={({ item }) => (
-            <PlantCard plant={item} onPress={(plant) => router.push(`/plants/${plant.slug}`)} />
-          )}
+          ListHeaderComponent={<YourCrops plants={cropPlants} onPressPlant={openPlant} />}
+          renderItem={({ item }) => <PlantCard plant={item} onPress={openPlant} />}
           ListEmptyComponent={
             <Text style={styles.message}>
               {query.trim() ? `No plants match "${query.trim()}".` : 'No plants available yet.'}

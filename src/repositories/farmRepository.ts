@@ -20,10 +20,29 @@ export async function getFarm(farmId: string): Promise<Farm | null> {
 }
 
 /**
+ * The farm the user belongs to (their oldest membership). The MVP has one farm per user.
+ * Returns null if the user has no farm.
+ */
+export async function getFarmForUser(userId: string): Promise<Farm | null> {
+  const { data, error } = await supabase
+    .from('farm_members')
+    .select('farms(*)')
+    .eq('user_id', userId)
+    .order('created_at')
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  const farm = (data as unknown as { farms: Farm | Farm[] | null } | null)?.farms;
+  return (Array.isArray(farm) ? farm[0] : farm) ?? null;
+}
+
+/**
  * Creates the user's farm, adds them as owner, and marks onboarding complete, all in one
  * database transaction. The user is taken from the session, never from the client.
+ * `onboardingData.interested_produce` holds plant slugs; up to 5 become planned crops.
  * Throws an Error whose message is one of: not_authenticated, invalid_farm_name,
- * invalid_onboarding_data, profile_not_found, already_onboarded.
+ * invalid_onboarding_data, too_many_crops, invalid_plant, profile_not_found,
+ * already_onboarded.
  */
 export async function createFarmWithMember(
   name: string,
