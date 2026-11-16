@@ -30,6 +30,7 @@ export default function TabLayout() {
         name="plants"
         options={{
           title: 'Plants',
+          headerShown: false, // the nested stack in plants/ draws its own header
           tabBarIcon: ({ color }) => <Ionicons name="leaf" size={24} color={color as string} />,
         }}
       />

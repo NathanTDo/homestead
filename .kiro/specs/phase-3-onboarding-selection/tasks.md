@@ -25,17 +25,17 @@
 
 ## 4. Plant Catalog
 
-- [ ] 4.1 Create `app/(tabs)/plants.tsx` with scrollable plant card grid
-- [ ] 4.2 Implement search input with case-insensitive name filtering
-- [ ] 4.3 Create `usePlants(searchQuery)` hook fetching from `plantRepository`
-- [ ] 4.4 Create plant card component showing image and name
-- [ ] 4.5 Create image utility mapping `image_url` keys to bundled assets in `src/utils/images.ts`
-- [ ] 4.6 Add placeholder plant images to `assets/images/` for all 15 plants
+- [x] 4.1 Create `app/(tabs)/plants.tsx` with scrollable plant card grid
+- [x] 4.2 Implement search input with case-insensitive name filtering
+- [x] 4.3 Create `usePlants(searchQuery)` hook fetching from `plantRepository`
+- [x] 4.4 Create plant card component showing image and name
+- [x] 4.5 Create image utility mapping `image_url` keys to bundled assets in `src/utils/images.ts`
+- [x] 4.6 Add placeholder plant images to `assets/images/` for all 15 plants
 
 ## 5. Plant Details
 
-- [ ] 5.1 Create `app/(tabs)/plants/[slug].tsx` detail screen
-- [ ] 5.2 Display plant name, description, image, and growing seasons placeholder
+- [x] 5.1 Create `app/(tabs)/plants/[slug].tsx` detail screen
+- [x] 5.2 Display plant name, description, image, and growing seasons placeholder
 - [ ] 5.3 Implement "Add to Farm" button that calls `cropRepository.addCrop()`
 - [ ] 5.4 Show "Added" state if plant is already in user's crops
 - [ ] 5.5 Add "Remove" option for planned crops (calls `cropRepository.archiveCrop()`)
