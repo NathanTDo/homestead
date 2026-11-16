@@ -64,14 +64,14 @@
 
 ## 9. Verification
 
-- [ ] 9.1 New user can sign up and profile is auto-created
-- [ ] 9.2 User completes survey and names their farm
-- [ ] 9.3 Farm and farm_members rows are created correctly
-- [ ] 9.4 User can browse all 15 plants in the catalog
-- [ ] 9.5 Search filters plants by name (case-insensitive, partial match)
-- [ ] 9.6 User can view plant details
-- [ ] 9.7 User can add a plant (creates planned crop)
-- [ ] 9.8 User cannot add more than 5 plants (client prevents it, server enforces it)
-- [ ] 9.9 User can remove a planned plant (archives the crop)
-- [ ] 9.10 Selections persist across app restarts
-- [ ] 9.11 Profile tab shows name, farm name, and sign-out works
+- [x] 9.1 New user can sign up and profile is auto-created
+- [x] 9.2 User completes survey and names their farm
+- [x] 9.3 Farm and farm_members rows are created correctly
+- [x] 9.4 User can browse all 15 plants in the catalog
+- [x] 9.5 Search filters plants by name (case-insensitive, partial match)
+- [x] 9.6 User can view plant details
+- [x] 9.7 User can add a plant (creates planned crop)
+- [x] 9.8 User cannot add more than 5 plants (client prevents it, server enforces it)
+- [x] 9.9 User can remove a planned plant (archives the crop)
+- [x] 9.10 Selections persist across app restarts
+- [x] 9.11 Profile tab shows name, farm name, and sign-out works
