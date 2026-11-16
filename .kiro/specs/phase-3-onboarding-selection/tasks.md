@@ -2,26 +2,26 @@
 
 ## 1. Authentication UI
 
-- [ ] 1.1 Create `app/(auth)/login.tsx` with email/password sign-in form
-- [ ] 1.2 Create `app/(auth)/signup.tsx` with email/password/display-name sign-up form
-- [ ] 1.3 Add inline error messages for auth failures
-- [ ] 1.4 Implement auth state listener in `app/_layout.tsx` to route based on auth and onboarding state
-- [ ] 1.5 Create `useAuth` hook wrapping Supabase auth state
+- [x] 1.1 Create `app/(auth)/login.tsx` with email/password sign-in form
+- [x] 1.2 Create `app/(auth)/signup.tsx` with email/password/display-name sign-up form
+- [x] 1.3 Add inline error messages for auth failures
+- [x] 1.4 Implement auth state listener in `app/_layout.tsx` to route based on auth and onboarding state
+- [x] 1.5 Create `useAuth` hook wrapping Supabase auth state
 
 ## 2. Onboarding — Survey
 
-- [ ] 2.1 Create `app/(onboarding)/welcome.tsx` with intro text and "Get Started" button
-- [ ] 2.2 Create `app/(onboarding)/survey.tsx` with five-field form (location, farming type, seasons, produce interests, experience level)
-- [ ] 2.3 Collect survey data in local state, validate required fields
-- [ ] 2.4 Pass survey data to the farm naming screen via params or state
+- [x] 2.1 Create `app/(onboarding)/welcome.tsx` with intro text and "Get Started" button
+- [x] 2.2 Create `app/(onboarding)/survey.tsx` with five-field form (location, farming type, seasons, produce interests, experience level)
+- [x] 2.3 Collect survey data in local state, validate required fields
+- [x] 2.4 Pass survey data to the farm naming screen via params or state
 
 ## 3. Onboarding — Farm Creation
 
-- [ ] 3.1 Create `app/(onboarding)/farm-name.tsx` with farm name input
-- [ ] 3.2 Create `create_farm_with_member` Postgres function (migration) for atomic farm + member + onboarding data creation
-- [ ] 3.3 Call the RPC from `farmRepository.createFarmWithMember()`
-- [ ] 3.4 On success, set onboarding complete flag and route to `(tabs)/plants`
-- [ ] 3.5 Handle errors (duplicate farm name, network failure)
+- [x] 3.1 Create `app/(onboarding)/farm-name.tsx` with farm name input
+- [x] 3.2 Create `create_farm_with_member` Postgres function (migration) for atomic farm + member + onboarding data creation
+- [x] 3.3 Call the RPC from `farmRepository.createFarmWithMember()`
+- [x] 3.4 On success, set onboarding complete flag and route to `(tabs)/plants`
+- [x] 3.5 Handle errors (duplicate farm name, network failure)
 
 ## 4. Plant Catalog
 
@@ -51,7 +51,7 @@
 ## 7. Profile Screen
 
 - [ ] 7.1 Create `app/(tabs)/profile.tsx` displaying display name and farm name
-- [ ] 7.2 Add sign-out button calling `supabase.auth.signOut()`
+- [x] 7.2 Add sign-out button calling `supabase.auth.signOut()`
 - [ ] 7.3 Fetch user profile and farm data via repositories
 
 ## 8. Repository Layer
