@@ -87,6 +87,10 @@ Variables prefixed with `EXPO_PUBLIC_*` are exposed to the client via `process.e
    supabase db reset
    ```
    This runs all migrations and the seed file.
+5. **Serve Edge Functions** (needed for schedule generation, keep it running in its own terminal):
+   ```bash
+   supabase functions serve
+   ```
 
 ## Project Structure
 

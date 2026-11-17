@@ -2,11 +2,11 @@
 
 ## 1. Seed Growing Templates
 
-- [ ] 1.1 Create seed data for at least one growing template per plant (15 plants)
-- [ ] 1.2 Include season, germination_days, maturity_days, harvest_start_days, harvest_end_days
-- [ ] 1.3 Set source_reference to "Illustrative data — pending verification" for all templates
-- [ ] 1.4 Seed care rules for each template (at minimum: watering with interval, fertilizing with interval)
-- [ ] 1.5 Run seed against local database and verify templates and care rules exist
+- [x] 1.1 Create seed data for at least one growing template per plant (15 plants)
+- [x] 1.2 Include season, germination_days, maturity_days, harvest_start_days, harvest_end_days
+- [x] 1.3 Set source_reference to "Illustrative data — pending verification" for all templates
+- [x] 1.4 Seed care rules for each template (at minimum: watering with interval, fertilizing with interval)
+- [x] 1.5 Run seed against local database and verify templates and care rules exist
 
 ## 2. Template Selection UI
 
@@ -28,20 +28,21 @@
 - [ ] 4.2 Handle update errors gracefully
 
 ## 5. Edge Function — generate-schedule
+<!-- NOTE: no transplanting task is generated (REQ-010 says "if applicable"): growing_templates has no transplant_days column. generate_tasks also activates the crop in the same transaction, and is callable by the service role only. -->
 
-- [ ] 5.1 Create `supabase/functions/generate-schedule/index.ts`
-- [ ] 5.2 Implement JWT authentication and user extraction
-- [ ] 5.3 Implement farm membership validation (user belongs to crop's farm)
-- [ ] 5.4 Validate crop has template_id and planting_date
-- [ ] 5.5 Fetch growing template and care rules
-- [ ] 5.6 Implement growing milestone calculation (planting, germination, maturity, harvest_start, harvest_end)
-- [ ] 5.7 Implement recurring maintenance task generation from care rules
-- [ ] 5.8 Implement one-time maintenance task generation (null interval_days)
-- [ ] 5.9 Build generation_key for each task: `{farm_crop_id}:{task_type}:{scheduled_date}`
-- [ ] 5.10 Create `generate_tasks` Postgres function for transactional insert with ON CONFLICT DO NOTHING
-- [ ] 5.11 Call the RPC from the Edge Function
-- [ ] 5.12 Update farm_crop status to 'active' and set selected_template_version
-- [ ] 5.13 Return generated schedule (task list) in the response
+- [x] 5.1 Create `supabase/functions/generate-schedule/index.ts`
+- [x] 5.2 Implement JWT authentication and user extraction
+- [x] 5.3 Implement farm membership validation (user belongs to crop's farm)
+- [x] 5.4 Validate crop has template_id and planting_date
+- [x] 5.5 Fetch growing template and care rules
+- [x] 5.6 Implement growing milestone calculation (planting, germination, maturity, harvest_start, harvest_end)
+- [x] 5.7 Implement recurring maintenance task generation from care rules
+- [x] 5.8 Implement one-time maintenance task generation (null interval_days)
+- [x] 5.9 Build generation_key for each task: `{farm_crop_id}:{task_type}:{scheduled_date}`
+- [x] 5.10 Create `generate_tasks` Postgres function for transactional insert with ON CONFLICT DO NOTHING
+- [x] 5.11 Call the RPC from the Edge Function
+- [x] 5.12 Update farm_crop status to 'active' and set selected_template_version
+- [x] 5.13 Return generated schedule (task list) in the response
 
 ## 6. Client-Side Integration
 
@@ -59,23 +60,23 @@
 
 ## 8. Unit Tests
 
-- [ ] 8.1 Test `addDays` with various inputs including null and zero
-- [ ] 8.2 Test milestone calculations (germination, maturity, harvest start/end)
-- [ ] 8.3 Test recurring task generation (correct number of tasks, correct intervals)
-- [ ] 8.4 Test one-time task generation
-- [ ] 8.5 Test date boundary cases (month boundary, leap day, year boundary)
-- [ ] 8.6 Test idempotency: running generation twice produces no new tasks
-- [ ] 8.7 Test generation_key format
+- [x] 8.1 Test `addDays` with various inputs including null and zero
+- [x] 8.2 Test milestone calculations (germination, maturity, harvest start/end)
+- [x] 8.3 Test recurring task generation (correct number of tasks, correct intervals)
+- [x] 8.4 Test one-time task generation
+- [x] 8.5 Test date boundary cases (month boundary, leap day, year boundary)
+- [x] 8.6 Test idempotency: running generation twice produces no new tasks
+- [x] 8.7 Test generation_key format
 
 ## 9. Verification
 
 - [ ] 9.1 User can select a template/season for a planned crop
 - [ ] 9.2 User can select a planting date (any date)
-- [ ] 9.3 Edge Function generates milestone tasks with correct dates
-- [ ] 9.4 Edge Function generates recurring maintenance tasks with correct intervals
-- [ ] 9.5 Tasks are persisted to growing_tasks table
-- [ ] 9.6 Crop status transitions from 'planned' to 'active'
-- [ ] 9.7 Re-running generation does not create duplicate tasks
-- [ ] 9.8 Unauthorized user cannot generate schedule for another farm's crop
-- [ ] 9.9 Generation fails gracefully if template or planting date is missing
-- [ ] 9.10 Template version is locked at generation time
+- [x] 9.3 Edge Function generates milestone tasks with correct dates
+- [x] 9.4 Edge Function generates recurring maintenance tasks with correct intervals
+- [x] 9.5 Tasks are persisted to growing_tasks table
+- [x] 9.6 Crop status transitions from 'planned' to 'active'
+- [x] 9.7 Re-running generation does not create duplicate tasks
+- [x] 9.8 Unauthorized user cannot generate schedule for another farm's crop
+- [x] 9.9 Generation fails gracefully if template or planting date is missing
+- [x] 9.10 Template version is locked at generation time
