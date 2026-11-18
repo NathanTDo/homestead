@@ -10,8 +10,10 @@ export interface AsyncData<T> {
   data: T | null;
   loading: boolean;
   error: boolean;
-  /** Fetches again, e.g. for a "Try again" button. */
+  /** Fetches again and shows the loading state, e.g. for a "Try again" button. */
   reload: () => void;
+  /** Fetches again but keeps showing the current data until the new data arrives. */
+  refresh: () => void;
 }
 
 /**
@@ -21,6 +23,7 @@ export interface AsyncData<T> {
  */
 export function useAsyncData<T>(fetcher: () => Promise<T>, key: string): AsyncData<T> {
   const [attempt, setAttempt] = useState(0);
+  const [refreshCount, setRefreshCount] = useState(0);
   const [result, setResult] = useState<Result<T> | null>(null);
   const fetcherRef = useRef(fetcher);
   const requestKey = `${key}#${attempt}`;
@@ -34,11 +37,20 @@ export function useAsyncData<T>(fetcher: () => Promise<T>, key: string): AsyncDa
     fetcherRef
       .current()
       .then((data) => active && setResult({ requestKey, data, error: false }))
-      .catch(() => active && setResult({ requestKey, data: null, error: true }));
+      .catch(
+        () =>
+          active &&
+          // A failed refresh keeps the data already on screen.
+          setResult((previous) =>
+            previous?.requestKey === requestKey && !previous.error
+              ? previous
+              : { requestKey, data: null, error: true },
+          ),
+      );
     return () => {
       active = false;
     };
-  }, [requestKey]);
+  }, [requestKey, refreshCount]);
 
   const current = result?.requestKey === requestKey ? result : null;
   return {
@@ -46,5 +58,6 @@ export function useAsyncData<T>(fetcher: () => Promise<T>, key: string): AsyncDa
     loading: current === null,
     error: current?.error ?? false,
     reload: () => setAttempt((n) => n + 1),
+    refresh: () => setRefreshCount((n) => n + 1),
   };
 }

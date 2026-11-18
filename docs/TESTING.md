@@ -10,6 +10,7 @@ How the project is tested, what each phase covers, and what is still checked by 
 | `TZ=Pacific/Auckland npm test`                  | Same, in another time zone. Date code must pass in every zone.                                                                                               |
 | `npx tsc --noEmit`                              | Type check.                                                                                                                                                  |
 | `npx eslint app src tests supabase/functions`   | Lint.                                                                                                                                                        |
+| `python3 tests/e2e/phase5_calendar_tasks.py`    | Calendar queries and task completion check. Needs Docker and `supabase start`. It deletes all farms, crops and tasks in the local database.                  |
 | `python3 tests/e2e/phase4_generate_schedule.py` | Edge Function end-to-end check. Needs Docker, `supabase start`, and `supabase functions serve`. It deletes all farms, crops and tasks in the local database. |
 
 ## Coverage by phase
@@ -53,6 +54,17 @@ not repeatable yet.
   - `features/templates.test.ts`: season ordering, template versions, description text, error messages.
 - Automated end-to-end: `tests/e2e/phase4_generate_schedule.py` (see above).
 - Manual: the template and date screens on a device (Phase 4 items 9.1 and 9.2).
+
+### Phase 5: Calendar and tasks
+
+- Automated (`tests/calendar/logic.test.ts`): month grid (leap February, six-row months,
+  weekday alignment), month navigation across years, month date ranges (including December),
+  grouping tasks by date, the dot and count indicators, task type colors and which tasks can be
+  completed.
+- Automated end-to-end: `tests/e2e/phase5_calendar_tasks.py` (month boundaries, plant filter,
+  plant names, archived crops hidden, completing and un-completing a task and that it persists,
+  other users blocked).
+- Manual: the calendar, task list sheet and task detail screens on a device (Phase 5 section 9).
 
 ## Known gaps
 

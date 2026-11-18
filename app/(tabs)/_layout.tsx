@@ -35,6 +35,7 @@ function TabsNavigator() {
         name="calendar"
         options={{
           title: 'Calendar',
+          headerShown: false, // the nested stack in calendar/ draws its own header
           tabBarIcon: ({ color }) => <Ionicons name="calendar" size={24} color={color as string} />,
         }}
       />
