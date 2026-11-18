@@ -67,7 +67,7 @@ not repeatable yet.
 - Automated (`tests/hooks/useAsyncData.test.tsx`): the shared data-loading hook, including that
   `refresh` and `reload` keep the same identity between renders. A new function each render made
   the calendar's focus effect loop forever.
-- Manual: the calendar, task list sheet and task detail screens on a device (Phase 5 section 9).
+- Manual: the calendar, task list sheet and task detail screens were verified on a device (Phase 5 section 9).
 
 ## Known gaps
 

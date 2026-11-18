@@ -62,15 +62,15 @@
 
 ## 9. Verification
 
-- [ ] 9.1 Calendar displays the current month with correct day layout
-- [ ] 9.2 Current date is highlighted
-- [ ] 9.3 Month navigation works (prev/next)
-- [ ] 9.4 Tasks appear on their scheduled dates with colored indicators
-- [ ] 9.5 Tapping a date shows the task list for that date
-- [ ] 9.6 Tapping a task shows task details
-- [ ] 9.7 User can mark a maintenance task as complete
-- [ ] 9.8 Completed tasks remain completed after app restart
-- [ ] 9.9 User can unmark a completed task
-- [ ] 9.10 Plant filter shows only the selected plant's tasks
-- [ ] 9.11 Multiple activities on the same date are all displayed
-- [ ] 9.12 Loading indicator shows while data fetches
+- [x] 9.1 Calendar displays the current month with correct day layout
+- [x] 9.2 Current date is highlighted
+- [x] 9.3 Month navigation works (prev/next)
+- [x] 9.4 Tasks appear on their scheduled dates with colored indicators
+- [x] 9.5 Tapping a date shows the task list for that date
+- [x] 9.6 Tapping a task shows task details
+- [x] 9.7 User can mark a maintenance task as complete
+- [x] 9.8 Completed tasks remain completed after app restart
+- [x] 9.9 User can unmark a completed task
+- [x] 9.10 Plant filter shows only the selected plant's tasks
+- [x] 9.11 Multiple activities on the same date are all displayed
+- [x] 9.12 Loading indicator shows while data fetches
