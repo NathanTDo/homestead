@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface Result<T> {
   requestKey: string;
@@ -52,12 +52,17 @@ export function useAsyncData<T>(fetcher: () => Promise<T>, key: string): AsyncDa
     };
   }, [requestKey, refreshCount]);
 
+  // These must keep the same identity between renders. Effects such as useFocusEffect depend
+  // on them, and a new function each render would make those effects run again every render.
+  const reload = useCallback(() => setAttempt((n) => n + 1), []);
+  const refresh = useCallback(() => setRefreshCount((n) => n + 1), []);
+
   const current = result?.requestKey === requestKey ? result : null;
   return {
     data: current?.data ?? null,
     loading: current === null,
     error: current?.error ?? false,
-    reload: () => setAttempt((n) => n + 1),
-    refresh: () => setRefreshCount((n) => n + 1),
+    reload,
+    refresh,
   };
 }
