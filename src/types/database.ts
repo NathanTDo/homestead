@@ -125,3 +125,16 @@ export interface GenerateScheduleResult {
   created: number;
   tasks: ScheduledTask[];
 }
+
+/** A task with the name of its plant, as the calendar shows it. */
+export interface CalendarTask {
+  id: string;
+  farm_crop_id: string;
+  plant_id: string;
+  plant_name: string;
+  task_type: TaskType;
+  title: string;
+  description: string | null;
+  scheduled_date: string;
+  completed_at: string | null;
+}

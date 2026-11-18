@@ -9,6 +9,7 @@ import {
   todayIso,
   type IsoDate,
 } from '@/utils/dates';
+import { palette } from '@/constants/Colors';
 
 interface DateFieldProps {
   label: string;
@@ -65,6 +66,8 @@ export function DateField({
           value={pickerValue}
           mode="date"
           display="inline"
+          themeVariant="dark"
+          accentColor={palette.accent}
           minimumDate={MIN_DATE}
           maximumDate={MAX_DATE}
           onChange={(_event, date) => {
@@ -81,8 +84,9 @@ const styles = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '600', marginBottom: 6 },
   field: {
     borderWidth: 1,
-    borderColor: '#999',
-    borderRadius: 8,
+    borderColor: palette.border,
+    borderRadius: 12,
+    backgroundColor: palette.surface,
     paddingHorizontal: 12,
     paddingVertical: 12,
   },

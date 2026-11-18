@@ -8,6 +8,7 @@ import { Text, View } from '@/components/Themed';
 import { useFarm } from '@/features/farm';
 import { usePlants } from '@/features/plants';
 import type { Plant } from '@/types';
+import { palette } from '@/constants/Colors';
 
 export default function PlantsScreen() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function PlantsScreen() {
       </View>
 
       {loading ? (
-        <ActivityIndicator style={styles.center} />
+        <ActivityIndicator color={palette.text} style={styles.center} />
       ) : error ? (
         <View style={styles.center}>
           <Text style={styles.message}>Could not load plants. Check your connection.</Text>

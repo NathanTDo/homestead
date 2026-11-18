@@ -1,8 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 
-import { useColorScheme } from '@/components/useColorScheme';
-import Colors from '@/constants/Colors';
+import { palette } from '@/constants/Colors';
 import { MAX_ACTIVE_CROPS } from '@/features/crops';
 import { FarmProvider, useFarm } from '@/features/farm';
 
@@ -15,13 +14,17 @@ export default function TabLayout() {
 }
 
 function TabsNavigator() {
-  const colorScheme = useColorScheme();
   const { crops } = useFarm();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme].tint,
+        tabBarActiveTintColor: palette.accent,
+        tabBarInactiveTintColor: palette.textMuted,
+        tabBarStyle: { backgroundColor: palette.surface, borderTopColor: palette.border },
+        tabBarBadgeStyle: { backgroundColor: palette.accent, color: palette.onAccent },
+        headerStyle: { backgroundColor: palette.surface },
+        headerTintColor: palette.text,
       }}
     >
       <Tabs.Screen
@@ -35,6 +38,7 @@ function TabsNavigator() {
         name="calendar"
         options={{
           title: 'Calendar',
+          headerShown: false, // the nested stack in calendar/ draws its own header
           tabBarIcon: ({ color }) => <Ionicons name="calendar" size={24} color={color as string} />,
         }}
       />

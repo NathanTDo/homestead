@@ -5,7 +5,9 @@ import { Text, View } from '@/components/Themed';
 import { useAuth } from '@/features/auth';
 import * as cropRepository from '@/repositories/cropRepository';
 import * as farmRepository from '@/repositories/farmRepository';
+import * as profileRepository from '@/repositories/profileRepository';
 import type { Farm, FarmCrop } from '@/types';
+import { palette } from '@/constants/Colors';
 
 interface FarmContextValue {
   farm: Farm;
@@ -35,9 +37,11 @@ const FarmContext = createContext<FarmContextValue | null>(null);
  * only when both loaded, so screens can rely on `farm` existing.
  */
 export function FarmProvider({ children }: { children: React.ReactNode }) {
-  const { session, signOut } = useAuth();
+  const { session, signOut, refreshProfile } = useAuth();
   const userId = session?.user.id ?? null;
   const [attempt, setAttempt] = useState(0);
+  const [restarting, setRestarting] = useState(false);
+  const [restartFailed, setRestartFailed] = useState(false);
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   // Plants whose add request is in flight, so a double tap sends only one request.
   const [pendingPlantIds] = useState(() => new Set<string>());
@@ -101,13 +105,28 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
     updateCrops(() => fresh);
   }, [farm, updateCrops]);
 
+  // An account marked as onboarded can end up without a farm. Clearing the flag sends the user
+  // back through onboarding, which creates a new farm.
+  const restartSetup = useCallback(async () => {
+    if (!userId) return;
+    setRestarting(true);
+    setRestartFailed(false);
+    try {
+      await profileRepository.updateProfile(userId, { onboarding_data: null });
+      await refreshProfile();
+    } catch {
+      setRestartFailed(true);
+      setRestarting(false);
+    }
+  }, [userId, refreshProfile]);
+
   const value = useMemo<FarmContextValue | null>(
     () => (farm ? { farm, crops, addCrop, removeCrop, refreshCrops } : null),
     [farm, crops, addCrop, removeCrop, refreshCrops],
   );
 
   if (!current) {
-    return <ActivityIndicator style={styles.center} />;
+    return <ActivityIndicator color={palette.text} style={styles.center} />;
   }
   if (current.error) {
     return (
@@ -122,7 +141,13 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
     return (
       <View style={styles.center}>
         <Text style={styles.message}>We could not find a farm for your account.</Text>
-        <Button title="Try again" onPress={() => setAttempt((n) => n + 1)} />
+        <Button title="Set up my farm" onPress={restartSetup} loading={restarting} />
+        {restartFailed ? (
+          <Text accessibilityRole="alert" style={styles.message}>
+            Could not restart setup. Check your connection and try again.
+          </Text>
+        ) : null}
+        <Button title="Try again" variant="link" onPress={() => setAttempt((n) => n + 1)} />
         <Button title="Sign out" variant="link" onPress={signOut} />
       </View>
     );

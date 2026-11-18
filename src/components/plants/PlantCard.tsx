@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet } from 'react-native';
 import { Text } from '@/components/Themed';
+import { palette } from '@/constants/Colors';
 import type { Plant } from '@/types';
 import { PlantImage } from './PlantImage';
 
@@ -25,6 +26,16 @@ export function PlantCard({ plant, onPress }: PlantCardProps) {
 }
 
 const styles = StyleSheet.create({
-  card: { flex: 1, alignItems: 'center', padding: 12 },
+  card: {
+    flex: 1,
+    maxWidth: '50%',
+    alignItems: 'center',
+    padding: 12,
+    margin: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: palette.border,
+    backgroundColor: palette.surface,
+  },
   name: { marginTop: 8, fontSize: 15, fontWeight: '600' },
 });

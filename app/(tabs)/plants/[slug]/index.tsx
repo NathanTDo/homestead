@@ -8,6 +8,7 @@ import { MAX_ACTIVE_CROPS, canAddCrop, describeCropError } from '@/features/crop
 import { useFarm } from '@/features/farm';
 import { usePlant } from '@/features/plants';
 import { formatDate } from '@/utils/dates';
+import { palette } from '@/constants/Colors';
 
 export default function PlantDetailsScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
@@ -18,7 +19,7 @@ export default function PlantDetailsScreen() {
   const [actionError, setActionError] = useState<string | null>(null);
 
   if (loading) {
-    return <ActivityIndicator style={styles.center} />;
+    return <ActivityIndicator color={palette.text} style={styles.center} />;
   }
   if (error) {
     return (
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
   actions: { marginTop: 24, gap: 8 },
   added: { textAlign: 'center', fontSize: 16, fontWeight: '600' },
   note: { textAlign: 'center', opacity: 0.7 },
-  error: { color: '#c62828', textAlign: 'center' },
+  error: { color: palette.danger, textAlign: 'center' },
   heading: { fontSize: 18, fontWeight: '600', marginTop: 28, marginBottom: 6 },
   placeholder: { fontSize: 14, opacity: 0.6, lineHeight: 20 },
 });

@@ -13,6 +13,7 @@ import {
   validateFarmName,
 } from '@/features/onboarding';
 import * as farmRepository from '@/repositories/farmRepository';
+import { palette } from '@/constants/Colors';
 
 export default function FarmNameScreen() {
   const router = useRouter();
@@ -78,6 +79,6 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   content: { flexGrow: 1, justifyContent: 'center', padding: 24 },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 24 },
-  error: { color: '#c62828', marginBottom: 12 },
+  error: { color: palette.danger, marginBottom: 12 },
   actions: { gap: 8 },
 });

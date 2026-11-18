@@ -7,9 +7,8 @@ locking, and that signed-in users cannot call generate_tasks directly.
 
 Needs: Docker running, `supabase start`, and `supabase functions serve` in another terminal.
 Run:   python3 tests/e2e/phase4_generate_schedule.py
-It creates its own users (p4a@/p4b@example.com) and deletes the farm, crop, task and user
-rows it made. It WIPES all rows in farms, farm_crops and growing_tasks, so use a throwaway
-local database only.
+It creates its own users (p4a@/p4b@example.com) and deletes only the rows it created, so it is
+safe to run next to your own test data.
 """
 import json, subprocess, urllib.request, urllib.error, sys, os
 B='http://127.0.0.1:54321'
@@ -27,6 +26,14 @@ def req(method,path,body=None,token=None,prefer=None):
         try: return e.code,json.loads(t)
         except Exception: return e.code,t
 def sql(q): return subprocess.run(['docker','exec','supabase_db_homestead','psql','-U','postgres','-tA','-c',q],capture_output=True,text=True).stdout.strip()
+def cleanup(prefix):
+    """Delete only the rows created for this script's own test users."""
+    users = f"select id from auth.users where email like '{prefix}%@example.com'"
+    farms = f"select id from farms where created_by in ({users})"
+    crops = f"select id from farm_crops where farm_id in ({farms})"
+    sql(f"delete from growing_tasks where farm_crop_id in ({crops}); delete from farm_crops where farm_id in ({farms}); delete from farms where created_by in ({users}); delete from auth.users where email like '{prefix}%@example.com'")
+
+
 fails=[]
 def check(name,cond,detail=''):
     print(('PASS ' if cond else 'FAIL ')+name+(('  -> '+str(detail)) if (detail and not cond) else ''))
@@ -35,6 +42,7 @@ def signup(email):
     s,r=req('POST','/auth/v1/signup',{'email':email,'password':'test-pass-123'}); return r['access_token']
 def fn(token,body): return req('POST','/functions/v1/generate-schedule',body,token)
 
+cleanup('p4')
 t1=signup('p4a@example.com'); t2=signup('p4b@example.com')
 req('POST','/rest/v1/rpc/create_farm_with_member',{'p_farm_name':'P4 Farm','p_onboarding_data':{'interested_produce':['lettuce','kale']}},t1)
 crops=req('GET','/rest/v1/farm_crops?select=id,plant_id,status,plants(slug)',None,t1)[1]
@@ -103,5 +111,6 @@ s,r=fn(t1,{'farm_crop_id':lettuce['id']}); check('archived crop -> 409', s==409 
 check('9.5b other user cannot read tasks', req('GET','/rest/v1/growing_tasks?select=id',None,t2)[1]==[])
 
 # cleanup
-sql("delete from growing_tasks; delete from farm_crops; delete from farms; delete from growing_templates where version=2; update growing_templates set maturity_days=60 where maturity_days=999; delete from auth.users where email like 'p4%@example.com'")
+sql("delete from growing_templates where version=2; update growing_templates set maturity_days=60 where maturity_days=999")
+cleanup('p4')
 print('\nFAILED:',fails if fails else 'none')

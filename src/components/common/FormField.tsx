@@ -1,5 +1,6 @@
 import { StyleSheet, TextInput, type TextInputProps } from 'react-native';
 import { Text, useThemeColor, View } from '@/components/Themed';
+import { palette } from '@/constants/Colors';
 
 interface FormFieldProps extends TextInputProps {
   label: string;
@@ -11,7 +12,7 @@ export function FormField({ label, style, ...inputProps }: FormFieldProps) {
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
-        placeholderTextColor="#999"
+        placeholderTextColor={palette.textMuted}
         {...inputProps}
         style={[styles.input, { color }, style]}
         accessibilityLabel={label}
@@ -25,8 +26,9 @@ const styles = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '600', marginBottom: 6 },
   input: {
     borderWidth: 1,
-    borderColor: '#999',
-    borderRadius: 8,
+    borderColor: palette.border,
+    borderRadius: 12,
+    backgroundColor: palette.surface,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,

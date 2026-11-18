@@ -15,6 +15,7 @@ import {
 import * as cropRepository from '@/repositories/cropRepository';
 import { ScheduleRequestError, generateSchedule } from '@/repositories/scheduleRepository';
 import { formatDate, todayIso, type IsoDate } from '@/utils/dates';
+import { palette } from '@/constants/Colors';
 
 function capitalize(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -45,7 +46,7 @@ export default function SelectTemplateScreen() {
   const [createdCount, setCreatedCount] = useState<number | null>(null);
 
   if (plantLoading || (plant && templatesLoading)) {
-    return <ActivityIndicator style={styles.center} />;
+    return <ActivityIndicator color={palette.text} style={styles.center} />;
   }
   if (plantError || templatesError) {
     return (
@@ -185,13 +186,19 @@ const styles = StyleSheet.create({
   successTitle: { textAlign: 'center', fontSize: 22, fontWeight: 'bold' },
   content: { padding: 24 },
   heading: { fontSize: 20, fontWeight: '600', marginBottom: 12 },
-  card: { borderWidth: 1, borderColor: '#999', borderRadius: 10, padding: 14, marginBottom: 10 },
-  cardSelected: { borderColor: '#2f7d32', borderWidth: 2 },
+  card: {
+    borderWidth: 1,
+    borderColor: palette.border,
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 10,
+  },
+  cardSelected: { borderColor: palette.accent, borderWidth: 2 },
   season: { fontSize: 17, fontWeight: '600', marginBottom: 4 },
   line: { fontSize: 14, opacity: 0.8, lineHeight: 20 },
   disclaimer: { fontSize: 12, opacity: 0.6, marginBottom: 20 },
   dateSection: { marginBottom: 8 },
   harvest: { fontSize: 14, opacity: 0.8, marginTop: 4 },
-  error: { color: '#c62828', marginBottom: 12 },
+  error: { color: palette.danger, marginBottom: 12 },
   hint: { textAlign: 'center', opacity: 0.6, marginTop: 8 },
 });
