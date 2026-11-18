@@ -6,8 +6,8 @@ filter, archived crops being hidden, the task detail query, completing and un-co
 task (and that it persists), and that other users cannot read or change a farm's tasks.
 
 Needs: Docker running and `supabase start`. Run: python3 tests/e2e/phase5_calendar_tasks.py
-It creates its own users (p5a@/p5b@example.com) and WIPES all rows in farms, farm_crops and
-growing_tasks afterwards, so use a throwaway local database only.
+It creates its own users (p5a@/p5b@example.com) and deletes only the rows it created, so it is
+safe to run next to your own test data.
 """
 import json, subprocess, urllib.request, urllib.error, urllib.parse
 
@@ -35,6 +35,14 @@ def sql(q):
     return subprocess.run(['docker', 'exec', 'supabase_db_homestead', 'psql', '-U', 'postgres', '-tA', '-c', q], capture_output=True, text=True).stdout.strip()
 
 
+def cleanup(prefix):
+    """Delete only the rows created for this script's own test users."""
+    users = f"select id from auth.users where email like '{prefix}%@example.com'"
+    farms = f"select id from farms where created_by in ({users})"
+    crops = f"select id from farm_crops where farm_id in ({farms})"
+    sql(f"delete from growing_tasks where farm_crop_id in ({crops}); delete from farm_crops where farm_id in ({farms}); delete from farms where created_by in ({users}); delete from auth.users where email like '{prefix}%@example.com'")
+
+
 fails = []
 def check(name, cond, detail=''):
     print(('PASS ' if cond else 'FAIL ') + name + ((' -> ' + str(detail)) if (detail and not cond) else ''))
@@ -52,6 +60,7 @@ def month(token, frm, to, plant_id=None):
     return req('GET', q, None, token)
 
 
+cleanup('p5')
 t1, t2 = signup('p5a@example.com'), signup('p5b@example.com')
 req('POST', '/rest/v1/rpc/create_farm_with_member', {'p_farm_name': 'P5 Farm', 'p_onboarding_data': {'interested_produce': ['kale', 'peas']}}, t1)
 crops = {c['plants']['slug']: c for c in req('GET', '/rest/v1/farm_crops?select=id,plant_id,plants(slug)', None, t1)[1]}
@@ -92,5 +101,5 @@ sql(f"update farm_crops set status='archived' where id='{crops['peas']['id']}'")
 s, r = month(t1, '2025-12-01', '2026-01-01'); check('archived crop tasks are hidden from the calendar', {t['farm_crops']['plants']['name'] for t in r} == {'Kale'}, r)
 check('archived crop tasks are kept in the database', sql(f"select count(*) from growing_tasks where farm_crop_id='{crops['peas']['id']}'") == '2')
 
-sql("delete from growing_tasks; delete from farm_crops; delete from farms; delete from auth.users where email like 'p5%@example.com'")
+cleanup('p5')
 print('\nFAILED:', fails if fails else 'none')

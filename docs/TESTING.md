@@ -4,14 +4,14 @@ How the project is tested, what each phase covers, and what is still checked by 
 
 ## Running the tests
 
-| Command                                         | What it runs                                                                                                                                                 |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `npm test`                                      | All Jest unit tests. No database needed.                                                                                                                     |
-| `TZ=Pacific/Auckland npm test`                  | Same, in another time zone. Date code must pass in every zone.                                                                                               |
-| `npx tsc --noEmit`                              | Type check.                                                                                                                                                  |
-| `npx eslint app src tests supabase/functions`   | Lint.                                                                                                                                                        |
-| `python3 tests/e2e/phase5_calendar_tasks.py`    | Calendar queries and task completion check. Needs Docker and `supabase start`. It deletes all farms, crops and tasks in the local database.                  |
-| `python3 tests/e2e/phase4_generate_schedule.py` | Edge Function end-to-end check. Needs Docker, `supabase start`, and `supabase functions serve`. It deletes all farms, crops and tasks in the local database. |
+| Command                                         | What it runs                                                                                                                                                                         |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm test`                                      | All Jest unit tests. No database needed.                                                                                                                                             |
+| `TZ=Pacific/Auckland npm test`                  | Same, in another time zone. Date code must pass in every zone.                                                                                                                       |
+| `npx tsc --noEmit`                              | Type check.                                                                                                                                                                          |
+| `npx eslint app src tests supabase/functions`   | Lint.                                                                                                                                                                                |
+| `python3 tests/e2e/phase5_calendar_tasks.py`    | Calendar queries and task completion check. Needs Docker and `supabase start`. It cleans up only the test users and rows it created, so your own test data is safe.                  |
+| `python3 tests/e2e/phase4_generate_schedule.py` | Edge Function end-to-end check. Needs Docker, `supabase start`, and `supabase functions serve`. It cleans up only the test users and rows it created, so your own test data is safe. |
 
 ## Coverage by phase
 
