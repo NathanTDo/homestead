@@ -40,3 +40,15 @@ export async function updateCrop(
 export function archiveCrop(cropId: string): Promise<FarmCrop> {
   return updateCrop(cropId, { status: 'archived' });
 }
+
+/** Saves the chosen template and planting date. The schedule is generated separately. */
+export function updateCropSchedule(
+  cropId: string,
+  schedule: { templateId: string; templateVersion: number; plantingDate: string },
+): Promise<FarmCrop> {
+  return updateCrop(cropId, {
+    template_id: schedule.templateId,
+    selected_template_version: schedule.templateVersion,
+    planting_date: schedule.plantingDate,
+  });
+}

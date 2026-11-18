@@ -10,22 +10,22 @@
 
 ## 2. Template Selection UI
 
-- [ ] 2.1 Create template selection screen showing available templates for a plant
-- [ ] 2.2 Display season, germination duration, maturity duration, and harvest window for each template
-- [ ] 2.3 Create `useTemplates(plantId)` hook fetching active templates with care rules
-- [ ] 2.4 Implement template selection (tap to select a season)
-- [ ] 2.5 If only one template exists, auto-select it
+- [x] 2.1 Create template selection screen showing available templates for a plant
+- [x] 2.2 Display season, germination duration, maturity duration, and harvest window for each template
+- [x] 2.3 Create `useTemplates(plantId)` hook fetching active templates with care rules
+- [x] 2.4 Implement template selection (tap to select a season)
+- [x] 2.5 If only one template exists, auto-select it
 
 ## 3. Planting Date Selection
 
-- [ ] 3.1 Add date picker for planting date selection
-- [ ] 3.2 Allow any date (not restricted to current season)
-- [ ] 3.3 Validate that a date is selected before proceeding
+- [x] 3.1 Add date picker for planting date selection
+- [x] 3.2 Allow any date (not restricted to current season)
+- [x] 3.3 Validate that a date is selected before proceeding
 
 ## 4. Crop Update
 
-- [ ] 4.1 Update `farm_crops` with template_id, planting_date, and selected_template_version via `cropRepository.updateCropSchedule()`
-- [ ] 4.2 Handle update errors gracefully
+- [x] 4.1 Update `farm_crops` with template_id, planting_date, and selected_template_version via `cropRepository.updateCropSchedule()`
+- [x] 4.2 Handle update errors gracefully
 
 ## 5. Edge Function — generate-schedule
 <!-- NOTE: no transplanting task is generated (REQ-010 says "if applicable"): growing_templates has no transplant_days column. generate_tasks also activates the crop in the same transaction, and is callable by the service role only. -->
@@ -46,17 +46,17 @@
 
 ## 6. Client-Side Integration
 
-- [ ] 6.1 Create service to call the `generate-schedule` Edge Function from the app
-- [ ] 6.2 After crop update (template + date), call generate-schedule
-- [ ] 6.3 Show loading state during generation
-- [ ] 6.4 Show success message and navigate back to plants tab
-- [ ] 6.5 Handle generation errors (display message, keep crop in 'planned' status)
+- [x] 6.1 Create service to call the `generate-schedule` Edge Function from the app
+- [x] 6.2 After crop update (template + date), call generate-schedule
+- [x] 6.3 Show loading state during generation
+- [x] 6.4 Show success message and navigate back to plants tab
+- [x] 6.5 Handle generation errors (display message, keep crop in 'planned' status)
 
 ## 7. Date Utility Functions
 
-- [ ] 7.1 Create `src/utils/dates.ts` with `addDays(date, days)` function
-- [ ] 7.2 Create `formatDate(date)` helper for display
-- [ ] 7.3 Add TypeScript types for schedule generation input/output
+- [x] 7.1 Create `src/utils/dates.ts` with `addDays(date, days)` function
+- [x] 7.2 Create `formatDate(date)` helper for display
+- [x] 7.3 Add TypeScript types for schedule generation input/output
 
 ## 8. Unit Tests
 

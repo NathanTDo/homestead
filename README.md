@@ -154,6 +154,8 @@ An Edge Function (`generate-schedule`) calculates growing milestones and mainten
 - **Integration tests:** Supabase local database for database operations
 - **Security tests:** RLS policy verification
 
+See [docs/TESTING.md](docs/TESTING.md) for what each phase covers and what is still manual.
+
 Run all tests:
 ```bash
 npm test

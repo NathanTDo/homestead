@@ -106,3 +106,22 @@ export interface GrowingTask {
   created_at: string;
   updated_at: string;
 }
+
+/** A growing template with its care rules, as returned by a joined query. */
+export interface GrowingTemplateWithRules extends GrowingTemplate {
+  care_rules: CareRule[];
+}
+
+/** A task as returned by the generate-schedule Edge Function. */
+export type ScheduledTask = Pick<
+  GrowingTask,
+  'farm_crop_id' | 'task_type' | 'title' | 'description' | 'scheduled_date' | 'generation_key'
+>;
+
+export interface GenerateScheduleResult {
+  crop_status: CropStatus;
+  template_version: number;
+  /** How many tasks were newly saved. 0 when the crop already had its schedule. */
+  created: number;
+  tasks: ScheduledTask[];
+}
