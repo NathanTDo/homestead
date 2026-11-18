@@ -1,6 +1,7 @@
 import { Modal, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { TASK_TYPE_LABELS, getTaskColor } from '@/constants/taskTypes';
+import { palette } from '@/constants/Colors';
 import type { CalendarTask } from '@/types';
 import { formatDate } from '@/utils/dates';
 
@@ -65,11 +66,12 @@ export function TaskListSheet({ date, tasks, onClose, onSelectTask }: TaskListSh
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
+  backdrop: { flex: 1, backgroundColor: palette.overlay },
   sheet: {
     maxHeight: '60%',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    backgroundColor: palette.surface,
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 32,
@@ -81,12 +83,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   title: { fontSize: 18, fontWeight: '600' },
-  close: { fontSize: 16, color: '#2f7d32', fontWeight: '600' },
+  close: { fontSize: 16, color: palette.accent, fontWeight: '600' },
   item: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, gap: 12 },
   swatch: { width: 6, alignSelf: 'stretch', borderRadius: 3 },
   itemText: { flex: 1 },
   itemTitle: { fontSize: 16, fontWeight: '500' },
   done: { textDecorationLine: 'line-through', opacity: 0.5 },
   itemMeta: { fontSize: 13, opacity: 0.6, marginTop: 2 },
-  check: { fontSize: 18, color: '#16A34A', fontWeight: 'bold' },
+  check: { fontSize: 18, color: palette.accent, fontWeight: 'bold' },
 });

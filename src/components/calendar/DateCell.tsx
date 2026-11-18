@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet } from 'react-native';
 import { Text, View } from '@/components/Themed';
+import { palette } from '@/constants/Colors';
 import type { CellIndicator, DayCell } from '@/features/calendar';
 
 interface DateCellProps {
@@ -9,8 +10,6 @@ interface DateCellProps {
   isToday: boolean;
   onPress: (date: string) => void;
 }
-
-const TODAY_COLOR = '#2f7d32';
 
 /** One day of the month with its activity dots or count badge. */
 export function DateCell({ cell, indicator, isToday, onPress }: DateCellProps) {
@@ -49,9 +48,9 @@ export function DateCell({ cell, indicator, isToday, onPress }: DateCellProps) {
 const styles = StyleSheet.create({
   cell: { flex: 1, minHeight: 56, alignItems: 'center', paddingTop: 4 },
   day: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
-  today: { backgroundColor: TODAY_COLOR },
-  dayText: { fontSize: 15 },
-  todayText: { color: '#fff', fontWeight: 'bold' },
+  today: { backgroundColor: palette.surface },
+  dayText: { fontSize: 15, color: palette.cardText },
+  todayText: { color: palette.text, fontWeight: 'bold' },
   indicator: { flexDirection: 'row', gap: 3, height: 16, alignItems: 'center', marginTop: 2 },
   done: { opacity: 0.4 },
   dot: { width: 7, height: 7, borderRadius: 4 },
@@ -60,9 +59,9 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 8,
     paddingHorizontal: 4,
-    backgroundColor: '#6B7280',
+    backgroundColor: palette.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  badgeText: { color: '#fff', fontSize: 11, fontWeight: 'bold' },
+  badgeText: { color: palette.text, fontSize: 11, fontWeight: 'bold' },
 });

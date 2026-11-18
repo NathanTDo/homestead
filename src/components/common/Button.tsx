@@ -1,5 +1,6 @@
 import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
 import { Text } from '@/components/Themed';
+import { palette } from '@/constants/Colors';
 
 interface ButtonProps {
   title: string;
@@ -24,7 +25,7 @@ export function Button({ title, onPress, loading, disabled, variant = 'primary' 
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#fff' : undefined} />
+        <ActivityIndicator color={variant === 'primary' ? palette.onAccent : palette.accent} />
       ) : (
         <Text style={variant === 'primary' ? styles.primaryText : styles.linkText}>{title}</Text>
       )}
@@ -34,9 +35,9 @@ export function Button({ title, onPress, loading, disabled, variant = 'primary' 
 
 const styles = StyleSheet.create({
   base: { borderRadius: 8, paddingVertical: 12, alignItems: 'center', justifyContent: 'center' },
-  primary: { backgroundColor: '#2f7d32' },
+  primary: { backgroundColor: palette.accent },
   link: { backgroundColor: 'transparent' },
   inactive: { opacity: 0.5 },
-  primaryText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  linkText: { fontSize: 14, color: '#2f7d32', fontWeight: '600' },
+  primaryText: { color: palette.onAccent, fontSize: 16, fontWeight: '600' },
+  linkText: { fontSize: 14, color: palette.accent, fontWeight: '600' },
 });

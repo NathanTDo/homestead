@@ -2,7 +2,12 @@
  * Learn more about Light and Dark modes:
  * https://docs.expo.io/guides/color-schemes/
  */
-import { Text as DefaultText, View as DefaultView, TextProps as RNTextProps, ViewProps as RNViewProps } from 'react-native';
+import {
+  Text as DefaultText,
+  View as DefaultView,
+  TextProps as RNTextProps,
+  ViewProps as RNViewProps,
+} from 'react-native';
 
 import { useColorScheme } from './useColorScheme';
 
@@ -18,7 +23,7 @@ export type ViewProps = ThemeProps & RNViewProps;
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
-  colorName: keyof typeof Colors.light & keyof typeof Colors.dark
+  colorName: keyof typeof Colors.light & keyof typeof Colors.dark,
 ) {
   const theme = useColorScheme();
   const colorFromProps = props[theme];
@@ -39,7 +44,9 @@ export function Text(props: TextProps) {
 
 export function View(props: ViewProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
-  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
-
-  return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
+  const themed = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
+  // Transparent by default so nested views do not paint over cards. The navigation theme
+  // paints each screen's background. Pass lightColor or darkColor to opt in to a fill.
+  const hasFill = lightColor !== undefined || darkColor !== undefined;
+  return <DefaultView style={[hasFill && { backgroundColor: themed }, style]} {...otherProps} />;
 }

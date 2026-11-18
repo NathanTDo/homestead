@@ -17,10 +17,10 @@ export const TASK_CATEGORY: Record<TaskType, TaskCategory> = {
 };
 
 export const CATEGORY_COLORS: Record<TaskCategory, string> = {
-  milestone: '#2563EB', // blue
-  harvest: '#16A34A', // green
-  maintenance: '#EA580C', // orange
-  other: '#6B7280', // gray
+  milestone: '#3B82F6', // blue
+  harvest: '#22C55E', // green
+  maintenance: '#F97316', // orange
+  other: '#9CA3AF', // gray
 };
 
 export const CATEGORY_LABELS: Record<TaskCategory, string> = {

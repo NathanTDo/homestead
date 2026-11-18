@@ -21,6 +21,7 @@ import {
 } from '@/features/calendar';
 import { useFarm } from '@/features/farm';
 import { usePlants } from '@/features/plants';
+import { palette } from '@/constants/Colors';
 import type { CalendarTask } from '@/types';
 import { todayIso } from '@/utils/dates';
 
@@ -70,11 +71,9 @@ export default function CalendarScreen() {
 
   return (
     <ScrollView style={{ paddingTop: insets.top }} contentContainerStyle={styles.content}>
-      <CalendarHeader
-        label={monthLabel(month)}
-        onPrevious={() => setMonth((m) => shiftMonth(m, -1))}
-        onNext={() => setMonth((m) => shiftMonth(m, 1))}
-      />
+      <Text accessibilityRole="header" style={styles.title}>
+        Calendar
+      </Text>
 
       {filterOptions.length > 0 ? (
         <View style={styles.filter}>
@@ -86,15 +85,22 @@ export default function CalendarScreen() {
         </View>
       ) : null}
 
-      <CalendarGrid
-        weeks={weeks}
-        tasksByDate={tasksByDate}
-        today={todayIso()}
-        onSelectDate={setSelectedDate}
-      />
+      <View style={styles.panel}>
+        <CalendarHeader
+          label={monthLabel(month)}
+          onPrevious={() => setMonth((m) => shiftMonth(m, -1))}
+          onNext={() => setMonth((m) => shiftMonth(m, 1))}
+        />
+        <CalendarGrid
+          weeks={weeks}
+          tasksByDate={tasksByDate}
+          today={todayIso()}
+          onSelectDate={setSelectedDate}
+        />
+      </View>
 
       {loading ? (
-        <ActivityIndicator style={styles.status} />
+        <ActivityIndicator color={palette.text} style={styles.status} />
       ) : error ? (
         <View style={styles.status}>
           <Text style={styles.message}>Could not load your tasks. Check your connection.</Text>
@@ -120,6 +126,14 @@ export default function CalendarScreen() {
 
 const styles = StyleSheet.create({
   content: { paddingBottom: 32 },
+  title: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginVertical: 12 },
+  panel: {
+    marginHorizontal: 16,
+    padding: 8,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: palette.border,
+  },
   filter: { paddingHorizontal: 16, paddingTop: 4 },
   status: { marginTop: 16, paddingHorizontal: 24, gap: 12 },
   message: { textAlign: 'center', opacity: 0.7 },

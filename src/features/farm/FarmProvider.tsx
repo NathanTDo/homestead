@@ -6,6 +6,7 @@ import { useAuth } from '@/features/auth';
 import * as cropRepository from '@/repositories/cropRepository';
 import * as farmRepository from '@/repositories/farmRepository';
 import type { Farm, FarmCrop } from '@/types';
+import { palette } from '@/constants/Colors';
 
 interface FarmContextValue {
   farm: Farm;
@@ -107,7 +108,7 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
   );
 
   if (!current) {
-    return <ActivityIndicator style={styles.center} />;
+    return <ActivityIndicator color={palette.text} style={styles.center} />;
   }
   if (current.error) {
     return (

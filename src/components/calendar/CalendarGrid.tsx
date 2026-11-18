@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { WEEKDAY_LABELS, cellIndicator, type GridWeek } from '@/features/calendar';
+import { palette } from '@/constants/Colors';
 import type { CalendarTask } from '@/types';
 import { DateCell } from './DateCell';
 
@@ -40,14 +41,19 @@ export function CalendarGrid({ weeks, tasksByDate, today, onSelectDate }: Calend
 }
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal: 8 },
+  container: {
+    paddingHorizontal: 8,
+    paddingVertical: 12,
+    borderRadius: 20,
+    backgroundColor: palette.card,
+  },
   row: { flexDirection: 'row' },
   weekday: {
     flex: 1,
     textAlign: 'center',
     fontSize: 13,
-    fontWeight: '600',
-    opacity: 0.6,
+    fontWeight: '700',
+    color: palette.cardText,
     paddingVertical: 6,
   },
 });

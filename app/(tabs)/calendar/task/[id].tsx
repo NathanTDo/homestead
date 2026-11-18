@@ -15,6 +15,7 @@ import { useTask } from '@/features/calendar';
 import { getErrorMessage } from '@/utils/errors';
 import * as taskRepository from '@/repositories/taskRepository';
 import { formatDate, isoDateFromLocal } from '@/utils/dates';
+import { palette } from '@/constants/Colors';
 
 export default function TaskDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -23,7 +24,7 @@ export default function TaskDetailScreen() {
   const [actionError, setActionError] = useState<string | null>(null);
 
   if (loading) {
-    return <ActivityIndicator style={styles.center} />;
+    return <ActivityIndicator color={palette.text} style={styles.center} />;
   }
   if (error) {
     return (
@@ -132,5 +133,5 @@ const styles = StyleSheet.create({
   detailValue: { fontSize: 16, marginTop: 2, lineHeight: 22 },
   actions: { marginTop: 16, gap: 8 },
   note: { textAlign: 'center', opacity: 0.6 },
-  error: { color: '#c62828', textAlign: 'center' },
+  error: { color: palette.danger, textAlign: 'center' },
 });

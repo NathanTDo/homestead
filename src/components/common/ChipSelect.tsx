@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet } from 'react-native';
 import { Text, View } from '@/components/Themed';
+import { palette } from '@/constants/Colors';
 
 export interface ChipOption<T extends string> {
   value: T;
@@ -72,13 +73,13 @@ const styles = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
     borderWidth: 1,
-    borderColor: '#999',
+    borderColor: palette.border,
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
-  chipSelected: { backgroundColor: '#2f7d32', borderColor: '#2f7d32' },
+  chipSelected: { backgroundColor: palette.accent, borderColor: palette.accent },
   chipDisabled: { opacity: 0.4 },
   chipText: { fontSize: 14 },
-  chipTextSelected: { fontSize: 14, color: '#fff', fontWeight: '600' },
+  chipTextSelected: { fontSize: 14, color: palette.onAccent, fontWeight: '600' },
 });

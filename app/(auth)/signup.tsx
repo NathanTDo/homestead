@@ -5,6 +5,7 @@ import { Button, FormField } from '@/components/common';
 import { Text, View } from '@/components/Themed';
 import { validateSignUp } from '@/features/auth';
 import * as authRepository from '@/repositories/authRepository';
+import { palette } from '@/constants/Colors';
 
 export default function SignUpScreen() {
   const router = useRouter();
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   content: { flexGrow: 1, justifyContent: 'center', padding: 24 },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 24 },
-  error: { color: '#c62828', marginBottom: 12 },
+  error: { color: palette.danger, marginBottom: 12 },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',

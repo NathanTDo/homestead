@@ -1,5 +1,6 @@
 import { useFonts } from 'expo-font';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DarkTheme, Stack, ThemeProvider, type Theme } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
@@ -7,7 +8,7 @@ import 'react-native-reanimated';
 
 import { Button } from '@/components/common';
 import { Text, View } from '@/components/Themed';
-import { useColorScheme } from '@/components/useColorScheme';
+import { palette } from '@/constants/Colors';
 import { AuthProvider, useAuth } from '@/features/auth';
 
 export {
@@ -39,8 +40,21 @@ export default function RootLayout() {
   );
 }
 
+// Colors for screen backgrounds, headers and the tab bar.
+const navigationTheme: Theme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: palette.accent,
+    background: palette.background,
+    card: palette.surface,
+    text: palette.text,
+    border: palette.border,
+    notification: palette.accent,
+  },
+};
+
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
   const { route, refreshProfile, signOut } = useAuth();
 
   useEffect(() => {
@@ -54,9 +68,10 @@ function RootLayoutNav() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={navigationTheme}>
+      <StatusBar style="light" />
       {route === 'error' ? (
-        <View style={styles.errorContainer}>
+        <View style={[styles.errorContainer, { backgroundColor: palette.background }]}>
           <Text style={styles.errorText}>
             Your account could not be loaded. Check your connection.
           </Text>

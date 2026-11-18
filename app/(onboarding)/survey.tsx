@@ -16,6 +16,7 @@ import {
 import { MAX_ACTIVE_CROPS } from '@/features/crops';
 import * as plantRepository from '@/repositories/plantRepository';
 import type { Season } from '@/types';
+import { palette } from '@/constants/Colors';
 
 function toOptions<T extends string>(values: readonly T[]): ChipOption<T>[] {
   return values.map((value) => ({ value, label: value.charAt(0).toUpperCase() + value.slice(1) }));
@@ -95,7 +96,7 @@ export default function SurveyScreen() {
       ) : plantsFailed ? (
         <Text style={styles.note}>Could not load the crop list. You can skip this question.</Text>
       ) : (
-        <ActivityIndicator style={styles.loading} />
+        <ActivityIndicator color={palette.text} style={styles.loading} />
       )}
 
       <ChipSelect<ExperienceLevel>
@@ -123,6 +124,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 24 },
   note: { opacity: 0.7, marginBottom: 20 },
   loading: { marginBottom: 20 },
-  error: { color: '#c62828', marginBottom: 12 },
+  error: { color: palette.danger, marginBottom: 12 },
   actions: { gap: 8, marginBottom: 24 },
 });
