@@ -87,6 +87,10 @@ Variables prefixed with `EXPO_PUBLIC_*` are exposed to the client via `process.e
    supabase db reset
    ```
    This runs all migrations and the seed file.
+5. **Serve Edge Functions** (needed for schedule generation, keep it running in its own terminal):
+   ```bash
+   supabase functions serve
+   ```
 
 ## Project Structure
 
@@ -149,6 +153,8 @@ An Edge Function (`generate-schedule`) calculates growing milestones and mainten
 - **Component tests:** React Native Testing Library for UI components
 - **Integration tests:** Supabase local database for database operations
 - **Security tests:** RLS policy verification
+
+See [docs/TESTING.md](docs/TESTING.md) for what each phase covers and what is still manual.
 
 Run all tests:
 ```bash

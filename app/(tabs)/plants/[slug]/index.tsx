@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet } from 'react-native';
 import { Button } from '@/components/common';
@@ -7,9 +7,11 @@ import { Text, View } from '@/components/Themed';
 import { MAX_ACTIVE_CROPS, canAddCrop, describeCropError } from '@/features/crops';
 import { useFarm } from '@/features/farm';
 import { usePlant } from '@/features/plants';
+import { formatDate } from '@/utils/dates';
 
 export default function PlantDetailsScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
+  const router = useRouter();
   const { data: plant, loading, error, reload } = usePlant(slug);
   const { crops, addCrop, removeCrop } = useFarm();
   const [busy, setBusy] = useState(false);
@@ -70,7 +72,17 @@ export default function PlantDetailsScreen() {
       <View style={styles.actions}>
         {crop ? (
           <>
-            <Text style={styles.added}>Added to your farm</Text>
+            <Text style={styles.added}>
+              {crop.status === 'active' ? 'Schedule created' : 'Added to your farm'}
+            </Text>
+            {crop.status === 'active' && crop.planting_date ? (
+              <Text style={styles.note}>Planting on {formatDate(crop.planting_date)}</Text>
+            ) : (
+              <Button
+                title="Set up schedule"
+                onPress={() => router.push(`/plants/${plant.slug}/select-template`)}
+              />
+            )}
             <Button title="Remove" variant="link" onPress={confirmRemove} loading={busy} />
           </>
         ) : (

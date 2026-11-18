@@ -15,6 +15,8 @@ interface FarmContextValue {
   addCrop: (plantId: string) => Promise<void>;
   /** Archives a crop (soft delete). */
   removeCrop: (cropId: string) => Promise<void>;
+  /** Reloads the crops, e.g. after a schedule was created and a crop became active. */
+  refreshCrops: () => Promise<void>;
 }
 
 interface Loaded {
@@ -93,9 +95,15 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
     [updateCrops],
   );
 
+  const refreshCrops = useCallback(async () => {
+    if (!farm) return;
+    const fresh = await cropRepository.listCrops(farm.id, ACTIVE_STATUSES);
+    updateCrops(() => fresh);
+  }, [farm, updateCrops]);
+
   const value = useMemo<FarmContextValue | null>(
-    () => (farm ? { farm, crops, addCrop, removeCrop } : null),
-    [farm, crops, addCrop, removeCrop],
+    () => (farm ? { farm, crops, addCrop, removeCrop, refreshCrops } : null),
+    [farm, crops, addCrop, removeCrop, refreshCrops],
   );
 
   if (!current) {
