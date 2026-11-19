@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Button, FormField } from '@/components/common';
 import { Text, View } from '@/components/Themed';
-import { validateSignUp } from '@/features/auth';
+import { describeAuthError, validateSignUp } from '@/features/auth';
+import { useScreenPadding } from '@/hooks/useScreenPadding';
 import * as authRepository from '@/repositories/authRepository';
 import { palette } from '@/constants/Colors';
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const screenPadding = useScreenPadding();
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,7 +29,7 @@ export default function SignUpScreen() {
       // On success the auth listener updates the session and the root layout redirects.
       await authRepository.signUp(email.trim(), password, displayName.trim());
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not sign up. Try again.');
+      setError(describeAuthError(e, 'sign up'));
       setSubmitting(false);
     }
   }
@@ -37,7 +39,10 @@ export default function SignUpScreen() {
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={[styles.content, screenPadding]}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.title}>Create your account</Text>
         <FormField
           label="Name"

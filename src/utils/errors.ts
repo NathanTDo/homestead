@@ -7,3 +7,11 @@ export function getErrorMessage(error: unknown): string {
   }
   return '';
 }
+
+const NETWORK_PATTERN =
+  /network request failed|failed to fetch|fetch failed|load failed|networkerror|network error|timed? ?out|econn|enotfound|offline|internet connection/i;
+
+/** True when an error means the device could not reach the server (offline, timeout, no signal). */
+export function isNetworkError(error: unknown): boolean {
+  return NETWORK_PATTERN.test(getErrorMessage(error));
+}

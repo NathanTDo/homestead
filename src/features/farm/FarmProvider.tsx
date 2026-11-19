@@ -1,13 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet } from 'react-native';
-import { Button } from '@/components/common';
-import { Text, View } from '@/components/Themed';
+import { StyleSheet } from 'react-native';
+import { Button, ErrorState, LoadingState } from '@/components/common';
+import { Text } from '@/components/Themed';
 import { useAuth } from '@/features/auth';
 import * as cropRepository from '@/repositories/cropRepository';
 import * as farmRepository from '@/repositories/farmRepository';
 import * as profileRepository from '@/repositories/profileRepository';
+import { isNetworkError } from '@/utils/errors';
 import type { Farm, FarmCrop } from '@/types';
-import { palette } from '@/constants/Colors';
 
 interface FarmContextValue {
   farm: Farm;
@@ -26,6 +26,7 @@ interface Loaded {
   farm: Farm | null;
   crops: FarmCrop[];
   error: boolean;
+  offline: boolean;
 }
 
 const ACTIVE_STATUSES: FarmCrop['status'][] = ['planned', 'active'];
@@ -54,9 +55,19 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
       .getFarmForUser(userId)
       .then(async (farm) => {
         const crops = farm ? await cropRepository.listCrops(farm.id, ACTIVE_STATUSES) : [];
-        if (active) setLoaded({ key, farm, crops, error: false });
+        if (active) setLoaded({ key, farm, crops, error: false, offline: false });
       })
-      .catch(() => active && setLoaded({ key, farm: null, crops: [], error: true }));
+      .catch(
+        (failure: unknown) =>
+          active &&
+          setLoaded({
+            key,
+            farm: null,
+            crops: [],
+            error: true,
+            offline: isNetworkError(failure),
+          }),
+      );
     return () => {
       active = false;
     };
@@ -126,21 +137,23 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
   );
 
   if (!current) {
-    return <ActivityIndicator color={palette.text} style={styles.center} />;
+    return <LoadingState safeArea message="Loading your farm" />;
   }
   if (current.error) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.message}>Your farm could not be loaded. Check your connection.</Text>
-        <Button title="Try again" onPress={() => setAttempt((n) => n + 1)} />
+      <ErrorState
+        safeArea
+        message="Your farm could not be loaded."
+        offline={current.offline}
+        onRetry={() => setAttempt((n) => n + 1)}
+      >
         <Button title="Sign out" variant="link" onPress={signOut} />
-      </View>
+      </ErrorState>
     );
   }
   if (!value) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.message}>We could not find a farm for your account.</Text>
+      <ErrorState safeArea message="We could not find a farm for your account.">
         <Button title="Set up my farm" onPress={restartSetup} loading={restarting} />
         {restartFailed ? (
           <Text accessibilityRole="alert" style={styles.message}>
@@ -149,7 +162,7 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
         ) : null}
         <Button title="Try again" variant="link" onPress={() => setAttempt((n) => n + 1)} />
         <Button title="Sign out" variant="link" onPress={signOut} />
-      </View>
+      </ErrorState>
     );
   }
   return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;
@@ -162,6 +175,5 @@ export function useFarm(): FarmContextValue {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: 'center', padding: 24, gap: 12 },
   message: { textAlign: 'center', opacity: 0.7 },
 });

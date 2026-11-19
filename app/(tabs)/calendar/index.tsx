@@ -1,6 +1,6 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   CalendarGrid,
@@ -9,7 +9,7 @@ import {
   TaskListSheet,
   type PlantFilterOption,
 } from '@/components/calendar';
-import { Button } from '@/components/common';
+import { EmptyState, ErrorState, LoadingState } from '@/components/common';
 import { Text, View } from '@/components/Themed';
 import {
   buildMonthGrid,
@@ -50,7 +50,10 @@ export default function CalendarScreen() {
   // If the chosen plant is no longer an active crop, fall back to all plants.
   const activePlantId = filterOptions.some((o) => o.plantId === plantId) ? plantId : null;
 
-  const { tasksByDate, loading, error, reload, refresh } = useCalendarTasks(month, activePlantId);
+  const { tasksByDate, loading, error, offline, reload, refresh } = useCalendarTasks(
+    month,
+    activePlantId,
+  );
 
   // Coming back from a task screen: pick up changes such as a completed task, without a spinner.
   const hasFocusedOnce = useRef(false);
@@ -100,18 +103,24 @@ export default function CalendarScreen() {
       </View>
 
       {loading ? (
-        <ActivityIndicator color={palette.text} style={styles.status} />
+        <LoadingState fullScreen={false} message="Loading your tasks" />
       ) : error ? (
-        <View style={styles.status}>
-          <Text style={styles.message}>Could not load your tasks. Check your connection.</Text>
-          <Button title="Try again" onPress={reload} />
-        </View>
+        <ErrorState
+          fullScreen={false}
+          message="Could not load your tasks."
+          offline={offline}
+          onRetry={reload}
+        />
       ) : tasksByDate.size === 0 ? (
-        <Text style={[styles.message, styles.status]}>
-          {filterOptions.length === 0
-            ? 'No tasks yet. Set up a schedule for one of your crops to see its tasks here.'
-            : 'No tasks this month.'}
-        </Text>
+        <EmptyState
+          icon="calendar-outline"
+          message="No activities scheduled this month"
+          hint={
+            filterOptions.length === 0
+              ? 'Set up a schedule for one of your crops to see its tasks here.'
+              : undefined
+          }
+        />
       ) : null}
 
       <TaskListSheet

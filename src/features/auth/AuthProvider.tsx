@@ -3,12 +3,15 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import * as authRepository from '@/repositories/authRepository';
 import * as profileRepository from '@/repositories/profileRepository';
 import type { Profile } from '@/types';
+import { isNetworkError } from '@/utils/errors';
 import { resolveAuthRoute, type AuthRoute } from './routeGuard';
 
 interface AuthContextValue {
   session: Session | null;
   profile: Profile | null;
   route: AuthRoute;
+  /** Loading the profile failed because the device could not reach the server. */
+  profileOffline: boolean;
   /** Reloads the profile, e.g. after onboarding completes or on retry after an error. */
   refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -18,6 +21,7 @@ interface ProfileState {
   userId: string;
   profile: Profile | null;
   error: boolean;
+  offline: boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -51,9 +55,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadProfile = useCallback(async (id: string) => {
     try {
       const loaded = await profileRepository.getProfile(id);
-      setProfileState({ userId: id, profile: loaded, error: false });
-    } catch {
-      setProfileState({ userId: id, profile: null, error: true });
+      setProfileState({ userId: id, profile: loaded, error: false, offline: false });
+    } catch (failure) {
+      setProfileState({
+        userId: id,
+        profile: null,
+        error: true,
+        offline: isNetworkError(failure),
+      });
     }
   }, []);
 
@@ -62,8 +71,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let active = true;
     profileRepository
       .getProfile(userId)
-      .then((loaded) => active && setProfileState({ userId, profile: loaded, error: false }))
-      .catch(() => active && setProfileState({ userId, profile: null, error: true }));
+      .then(
+        (loaded) =>
+          active && setProfileState({ userId, profile: loaded, error: false, offline: false }),
+      )
+      .catch(
+        (failure: unknown) =>
+          active &&
+          setProfileState({
+            userId,
+            profile: null,
+            error: true,
+            offline: isNetworkError(failure),
+          }),
+      );
     return () => {
       active = false;
     };
@@ -79,6 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const current = userId !== null && profileState?.userId === userId ? profileState : null;
   const profile = current?.profile ?? null;
   const profileError = current?.error ?? false;
+  const profileOffline = current?.offline ?? false;
   const profileLoading = userId !== null && current === null;
 
   const route = resolveAuthRoute({
@@ -89,8 +111,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   const value = useMemo<AuthContextValue>(
-    () => ({ session, profile, route, refreshProfile, signOut: authRepository.signOut }),
-    [session, profile, route, refreshProfile],
+    () => ({
+      session,
+      profile,
+      route,
+      profileOffline,
+      refreshProfile,
+      signOut: authRepository.signOut,
+    }),
+    [session, profile, route, profileOffline, refreshProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

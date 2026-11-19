@@ -1,20 +1,19 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button, SearchInput } from '@/components/common';
+import { EmptyState, ErrorState, LoadingState, SearchInput } from '@/components/common';
 import { PlantCard, YourCrops } from '@/components/plants';
-import { Text, View } from '@/components/Themed';
+import { View } from '@/components/Themed';
 import { useFarm } from '@/features/farm';
 import { usePlants } from '@/features/plants';
 import type { Plant } from '@/types';
-import { palette } from '@/constants/Colors';
 
 export default function PlantsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
-  const { plants, allPlants, loading, error, reload } = usePlants(query);
+  const { plants, allPlants, loading, error, offline, reload } = usePlants(query);
   const { crops } = useFarm();
 
   const cropPlants = crops
@@ -30,12 +29,9 @@ export default function PlantsScreen() {
       </View>
 
       {loading ? (
-        <ActivityIndicator color={palette.text} style={styles.center} />
+        <LoadingState message="Loading plants" />
       ) : error ? (
-        <View style={styles.center}>
-          <Text style={styles.message}>Could not load plants. Check your connection.</Text>
-          <Button title="Try again" onPress={reload} />
-        </View>
+        <ErrorState message="Could not load plants." offline={offline} onRetry={reload} />
       ) : (
         <FlatList
           data={plants}
@@ -46,9 +42,11 @@ export default function PlantsScreen() {
           ListHeaderComponent={<YourCrops plants={cropPlants} onPressPlant={openPlant} />}
           renderItem={({ item }) => <PlantCard plant={item} onPress={openPlant} />}
           ListEmptyComponent={
-            <Text style={styles.message}>
-              {query.trim() ? `No plants match "${query.trim()}".` : 'No plants available yet.'}
-            </Text>
+            <EmptyState
+              icon="search-outline"
+              message={query.trim() ? 'No plants match your search' : 'No plants available yet'}
+              hint={query.trim() ? 'Try a different name.' : undefined}
+            />
           }
         />
       )}
@@ -60,6 +58,4 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   search: { padding: 16, paddingBottom: 8 },
   list: { paddingHorizontal: 8, paddingBottom: 24 },
-  center: { flex: 1, justifyContent: 'center', padding: 24, gap: 12 },
-  message: { textAlign: 'center', opacity: 0.7, marginTop: 24 },
 });

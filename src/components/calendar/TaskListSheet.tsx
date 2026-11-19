@@ -1,4 +1,5 @@
 import { Modal, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { EmptyState } from '@/components/common';
 import { Text, View } from '@/components/Themed';
 import { TASK_TYPE_LABELS, getTaskColor } from '@/constants/taskTypes';
 import { palette } from '@/constants/Colors';
@@ -38,6 +39,9 @@ export function TaskListSheet({ date, tasks, onClose, onSelectTask }: TaskListSh
           </Pressable>
         </View>
         <ScrollView>
+          {tasks.length === 0 ? (
+            <EmptyState message="No activities on this date" icon="calendar-outline" />
+          ) : null}
           {tasks.map((task) => {
             const done = task.completed_at !== null;
             return (

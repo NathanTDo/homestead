@@ -1,7 +1,7 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
-import { Button } from '@/components/common';
+import { ScrollView, StyleSheet } from 'react-native';
+import { Button, EmptyState, ErrorState, LoadingState } from '@/components/common';
 import { Text, View } from '@/components/Themed';
 import {
   CATEGORY_LABELS,
@@ -19,26 +19,19 @@ import { palette } from '@/constants/Colors';
 
 export default function TaskDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: task, loading, error, reload, refresh } = useTask(id);
+  const { data: task, loading, error, offline, reload, refresh } = useTask(id);
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
   if (loading) {
-    return <ActivityIndicator color={palette.text} style={styles.center} />;
+    return <LoadingState message="Loading task" />;
   }
   if (error) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.message}>Could not load this task. Check your connection.</Text>
-        <Button title="Try again" onPress={reload} />
-      </View>
-    );
+    return <ErrorState message="Could not load this task." offline={offline} onRetry={reload} />;
   }
   if (!task) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.message}>That task could not be found.</Text>
-      </View>
+      <EmptyState fullScreen icon="help-circle-outline" message="That task could not be found" />
     );
   }
 

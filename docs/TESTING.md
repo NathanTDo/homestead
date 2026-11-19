@@ -74,6 +74,15 @@ that does not use the real network.
 - Integration: `calendar` and `task-completion`.
 - Manual: the calendar, task sheet and task detail on a device.
 
+### Phase 6: Loading, error and empty states (`tests/ui`, `tests/features/errors`)
+
+- Component tests: `LoadingState`, `ErrorState` (retry, offline message, alert role) and `EmptyState`.
+- Screen tests render the calendar and plants screens with their real hooks and mocked data:
+  loading, empty, error with retry, offline, search with no results, the "Add plants to get started"
+  prompt, opening a day and a task, and month navigation. The calendar test also fails if the
+  render loop comes back, which the earlier unit tests missed.
+- Unit: `isNetworkError` and the sign-in and sign-up error messages.
+
 ### Phase 6: Integration and security (`tests/integration`, `tests/security`)
 
 | Spec item                                | Test file                                                    |
@@ -95,6 +104,5 @@ the limit trigger dropped, anonymous read access added) and confirming the tests
 
 ## Known gaps
 
-- There are no component tests for the screens. Problems that only appear when a screen renders
-  (such as the calendar render loop) are caught by hand.
+- Only the calendar and plants screens have render tests. The other screens are checked by hand.
 - Screen sizes (iPhone SE to Pro Max) are checked by hand on a device.

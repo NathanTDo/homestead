@@ -2,21 +2,26 @@ import { Pressable, StyleSheet } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { palette } from '@/constants/Colors';
 import type { CellIndicator, DayCell } from '@/features/calendar';
+import { formatDate } from '@/utils/dates';
 
 interface DateCellProps {
   /** null renders a blank cell outside the month. */
   cell: DayCell | null;
   indicator: CellIndicator;
+  /** How many tasks are on this day. */
+  taskCount: number;
   isToday: boolean;
   onPress: (date: string) => void;
 }
 
 /** One day of the month with its activity dots or count badge. */
-export function DateCell({ cell, indicator, isToday, onPress }: DateCellProps) {
+export function DateCell({ cell, indicator, taskCount, isToday, onPress }: DateCellProps) {
   if (!cell) return <View style={styles.cell} />;
 
   const hasTasks = indicator.kind !== 'none';
-  const label = `${cell.date}${isToday ? ', today' : ''}${hasTasks ? ', has tasks' : ', no tasks'}`;
+  const tasksText =
+    taskCount === 0 ? 'no tasks' : taskCount === 1 ? '1 task' : `${taskCount} tasks`;
+  const label = `${formatDate(cell.date)}${isToday ? ', today' : ''}, ${tasksText}`;
 
   return (
     <Pressable

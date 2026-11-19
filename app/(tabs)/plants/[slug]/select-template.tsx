@@ -1,7 +1,7 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet } from 'react-native';
-import { Button, DateField } from '@/components/common';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Button, DateField, EmptyState, ErrorState, LoadingState } from '@/components/common';
 import { Text, View } from '@/components/Themed';
 import { describeCropError } from '@/features/crops';
 import { useFarm } from '@/features/farm';
@@ -29,6 +29,7 @@ export default function SelectTemplateScreen() {
     data: plant,
     loading: plantLoading,
     error: plantError,
+    offline: plantOffline,
     reload: reloadPlant,
   } = usePlant(slug);
   const crop = plant ? crops.find((c) => c.plant_id === plant.id) : undefined;
@@ -36,6 +37,7 @@ export default function SelectTemplateScreen() {
     templates,
     loading: templatesLoading,
     error: templatesError,
+    offline: templatesOffline,
     reload: reloadTemplates,
   } = useTemplates(plant?.id ?? null);
 
@@ -46,25 +48,24 @@ export default function SelectTemplateScreen() {
   const [createdCount, setCreatedCount] = useState<number | null>(null);
 
   if (plantLoading || (plant && templatesLoading)) {
-    return <ActivityIndicator color={palette.text} style={styles.center} />;
+    return <LoadingState message="Loading growing information" />;
   }
   if (plantError || templatesError) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.message}>
-          Could not load growing information. Check your connection.
-        </Text>
-        <Button title="Try again" onPress={plantError ? reloadPlant : reloadTemplates} />
-      </View>
+      <ErrorState
+        message="Could not load growing information."
+        offline={plantError ? plantOffline : templatesOffline}
+        onRetry={plantError ? reloadPlant : reloadTemplates}
+      />
     );
   }
   if (!plant || !crop) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.message}>
-          Add this plant to your farm before setting up a schedule.
-        </Text>
-      </View>
+      <EmptyState
+        fullScreen
+        icon="leaf-outline"
+        message="Add this plant to your farm before setting up a schedule"
+      />
     );
   }
   if (createdCount !== null) {
@@ -92,9 +93,11 @@ export default function SelectTemplateScreen() {
   }
   if (templates.length === 0) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.message}>There is no growing information for {plant.name} yet.</Text>
-      </View>
+      <EmptyState
+        fullScreen
+        icon="leaf-outline"
+        message={`There is no growing information for ${plant.name} yet`}
+      />
     );
   }
 

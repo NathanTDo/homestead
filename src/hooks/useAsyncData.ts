@@ -1,15 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { isNetworkError } from '@/utils/errors';
 
 interface Result<T> {
   requestKey: string;
   data: T | null;
   error: boolean;
+  offline: boolean;
 }
 
 export interface AsyncData<T> {
   data: T | null;
   loading: boolean;
   error: boolean;
+  /** The failure was a network problem (offline, timeout), not something wrong with the data. */
+  offline: boolean;
   /** Fetches again and shows the loading state, e.g. for a "Try again" button. */
   reload: () => void;
   /** Fetches again but keeps showing the current data until the new data arrives. */
@@ -36,15 +40,15 @@ export function useAsyncData<T>(fetcher: () => Promise<T>, key: string): AsyncDa
     let active = true;
     fetcherRef
       .current()
-      .then((data) => active && setResult({ requestKey, data, error: false }))
+      .then((data) => active && setResult({ requestKey, data, error: false, offline: false }))
       .catch(
-        () =>
+        (failure: unknown) =>
           active &&
           // A failed refresh keeps the data already on screen.
           setResult((previous) =>
             previous?.requestKey === requestKey && !previous.error
               ? previous
-              : { requestKey, data: null, error: true },
+              : { requestKey, data: null, error: true, offline: isNetworkError(failure) },
           ),
       );
     return () => {
@@ -62,6 +66,7 @@ export function useAsyncData<T>(fetcher: () => Promise<T>, key: string): AsyncDa
     data: current?.data ?? null,
     loading: current === null,
     error: current?.error ?? false,
+    offline: current?.offline ?? false,
     reload,
     refresh,
   };
