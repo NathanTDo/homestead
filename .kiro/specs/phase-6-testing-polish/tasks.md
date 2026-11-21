@@ -47,20 +47,21 @@
 - [ ] 5.5 Ensure consistent spacing and padding across screens
 
 ## 6. Documentation
+<!-- NOTE: the deployment section of the README was written from the Supabase and Expo docs and has not been run against a hosted project. -->
 
-- [ ] 6.1 Update README with complete setup instructions (clone, install, env config, Supabase setup, dev server)
-- [ ] 6.2 Add project structure section with directory descriptions
-- [ ] 6.3 Add architecture overview (tech stack, data flow, repository pattern)
-- [ ] 6.4 Add growing template system documentation (templates, versioning, schedule generation)
-- [ ] 6.5 Add testing instructions (unit, integration, security)
-- [ ] 6.6 Add deployment instructions (Supabase backend, EAS build for mobile)
+- [x] 6.1 Update README with complete setup instructions (clone, install, env config, Supabase setup, dev server)
+- [x] 6.2 Add project structure section with directory descriptions
+- [x] 6.3 Add architecture overview (tech stack, data flow, repository pattern)
+- [x] 6.4 Add growing template system documentation (templates, versioning, schedule generation)
+- [x] 6.5 Add testing instructions (unit, integration, security)
+- [x] 6.6 Add deployment instructions (Supabase backend, EAS build for mobile)
 
 ## 7. Final Verification
 
-- [ ] 7.1 Run all unit tests — verify they pass
-- [ ] 7.2 Run all integration tests — verify they pass
-- [ ] 7.3 Run all security tests — verify they pass
-- [ ] 7.4 Run ESLint — verify no errors
-- [ ] 7.5 Run TypeScript compilation — verify no errors
+- [x] 7.1 Run all unit tests — verify they pass
+- [x] 7.2 Run all integration tests — verify they pass
+- [x] 7.3 Run all security tests — verify they pass
+- [x] 7.4 Run ESLint — verify no errors
+- [x] 7.5 Run TypeScript compilation — verify no errors
 - [ ] 7.6 Manual E2E test: signup → survey → farm name → browse plants → select plant → choose template → pick date → schedule generates → calendar shows tasks → mark task complete → reopen app → task still complete
 - [ ] 7.7 Verify all 15 acceptance criteria from the PRD are met
