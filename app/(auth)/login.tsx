@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Button, FormField } from '@/components/common';
 import { Text, View } from '@/components/Themed';
-import { validateSignIn } from '@/features/auth';
+import { describeAuthError, validateSignIn } from '@/features/auth';
+import { useScreenPadding } from '@/hooks/useScreenPadding';
 import * as authRepository from '@/repositories/authRepository';
 import { palette } from '@/constants/Colors';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const screenPadding = useScreenPadding();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +28,7 @@ export default function LoginScreen() {
       // On success the auth listener updates the session and the root layout redirects.
       await authRepository.signIn(email.trim(), password);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not sign in. Try again.');
+      setError(describeAuthError(e, 'sign in'));
       setSubmitting(false);
     }
   }
@@ -36,7 +38,10 @@ export default function LoginScreen() {
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={[styles.content, screenPadding]}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.title}>Welcome back</Text>
         <FormField
           label="Email"

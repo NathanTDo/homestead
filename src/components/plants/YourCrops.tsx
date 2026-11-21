@@ -21,7 +21,7 @@ export function YourCrops({ plants, onPressPlant }: YourCropsProps) {
         </Text>
       </View>
       {plants.length === 0 ? (
-        <Text style={styles.empty}>No crops yet. Choose some from the list below.</Text>
+        <Text style={styles.empty}>Add plants to get started</Text>
       ) : (
         <View style={styles.row}>
           {plants.map((plant) => (

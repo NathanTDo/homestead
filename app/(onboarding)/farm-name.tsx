@@ -12,11 +12,13 @@ import {
   useOnboarding,
   validateFarmName,
 } from '@/features/onboarding';
+import { useScreenPadding } from '@/hooks/useScreenPadding';
 import * as farmRepository from '@/repositories/farmRepository';
 import { palette } from '@/constants/Colors';
 
 export default function FarmNameScreen() {
   const router = useRouter();
+  const screenPadding = useScreenPadding();
   const { refreshProfile } = useAuth();
   const { answers } = useOnboarding();
   const [farmName, setFarmName] = useState('');
@@ -51,7 +53,10 @@ export default function FarmNameScreen() {
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={[styles.content, screenPadding]}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.title}>Name your farm</Text>
         <FormField
           label="Farm name"

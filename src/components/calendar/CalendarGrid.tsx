@@ -30,6 +30,7 @@ export function CalendarGrid({ weeks, tasksByDate, today, onSelectDate }: Calend
               key={cell?.date ?? `blank-${weekIndex}-${index}`}
               cell={cell}
               indicator={cellIndicator(cell ? (tasksByDate.get(cell.date) ?? []) : [])}
+              taskCount={cell ? (tasksByDate.get(cell.date)?.length ?? 0) : 0}
               isToday={cell?.date === today}
               onPress={onSelectDate}
             />

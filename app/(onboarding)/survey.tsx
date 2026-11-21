@@ -1,7 +1,14 @@
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
-import { Button, ChipSelect, FormField, type ChipOption } from '@/components/common';
+import { useState } from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
+import {
+  Button,
+  ChipSelect,
+  ErrorState,
+  FormField,
+  LoadingState,
+  type ChipOption,
+} from '@/components/common';
 import { Text, View } from '@/components/Themed';
 import {
   EXPERIENCE_LEVELS,
@@ -14,7 +21,8 @@ import {
   type FarmingType,
 } from '@/features/onboarding';
 import { MAX_ACTIVE_CROPS } from '@/features/crops';
-import * as plantRepository from '@/repositories/plantRepository';
+import { usePlants } from '@/features/plants';
+import { useScreenPadding } from '@/hooks/useScreenPadding';
 import type { Season } from '@/types';
 import { palette } from '@/constants/Colors';
 
@@ -28,24 +36,14 @@ const EXPERIENCE_OPTIONS = toOptions(EXPERIENCE_LEVELS);
 
 export default function SurveyScreen() {
   const router = useRouter();
+  const screenPadding = useScreenPadding();
   const { answers, updateAnswers } = useOnboarding();
   const [error, setError] = useState<string | null>(null);
-  const [plantOptions, setPlantOptions] = useState<ChipOption<string>[] | null>(null);
-  const [plantsFailed, setPlantsFailed] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    plantRepository
-      .searchPlants()
-      .then(
-        (plants) =>
-          active && setPlantOptions(plants.map((p) => ({ value: p.slug, label: p.name }))),
-      )
-      .catch(() => active && setPlantsFailed(true));
-    return () => {
-      active = false;
-    };
-  }, []);
+  const { allPlants, loading: plantsLoading, error: plantsFailed, offline, reload } = usePlants('');
+  const plantOptions: ChipOption<string>[] = allPlants.map((p) => ({
+    value: p.slug,
+    label: p.name,
+  }));
 
   function handleContinue() {
     const validationError = validateSurvey(answers);
@@ -58,7 +56,7 @@ export default function SurveyScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <ScrollView contentContainerStyle={screenPadding} keyboardShouldPersistTaps="handled">
       <Text style={styles.title}>About your farm</Text>
 
       <FormField
@@ -84,7 +82,16 @@ export default function SurveyScreen() {
         multiple
       />
 
-      {plantOptions ? (
+      {plantsLoading ? (
+        <LoadingState fullScreen={false} message="Loading crops" />
+      ) : plantsFailed ? (
+        <ErrorState
+          fullScreen={false}
+          message="Could not load the crop list. You can skip this question."
+          offline={offline}
+          onRetry={reload}
+        />
+      ) : (
         <ChipSelect<string>
           label={`Crops to start with (optional, up to ${MAX_ACTIVE_CROPS})`}
           options={plantOptions}
@@ -93,10 +100,6 @@ export default function SurveyScreen() {
           multiple
           maxSelected={MAX_ACTIVE_CROPS}
         />
-      ) : plantsFailed ? (
-        <Text style={styles.note}>Could not load the crop list. You can skip this question.</Text>
-      ) : (
-        <ActivityIndicator color={palette.text} style={styles.loading} />
       )}
 
       <ChipSelect<ExperienceLevel>
@@ -120,10 +123,7 @@ export default function SurveyScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 24, paddingTop: 64 },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 24 },
-  note: { opacity: 0.7, marginBottom: 20 },
-  loading: { marginBottom: 20 },
   error: { color: palette.danger, marginBottom: 12 },
   actions: { gap: 8, marginBottom: 24 },
 });

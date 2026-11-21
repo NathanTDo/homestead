@@ -3,14 +3,16 @@ import { StyleSheet } from 'react-native';
 import { Button } from '@/components/common';
 import { Text, View } from '@/components/Themed';
 import { useAuth } from '@/features/auth';
+import { useScreenPadding } from '@/hooks/useScreenPadding';
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const { profile, signOut } = useAuth();
+  const screenPadding = useScreenPadding();
   const name = profile?.display_name;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, screenPadding]}>
       <Text style={styles.title}>{name ? `Welcome, ${name}` : 'Welcome to Homestead'}</Text>
       <Text style={styles.body}>
         Answer a few questions about your farm, then pick the crops you want to grow. It takes about

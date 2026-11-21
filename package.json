@@ -43,7 +43,10 @@
     "web": "expo start --web",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test": "jest"
+    "test": "jest",
+    "test:db": "jest -c jest.integration.config.js --runInBand",
+    "test:integration": "jest -c jest.integration.config.js --runInBand tests/integration",
+    "test:security": "jest -c jest.integration.config.js --runInBand tests/security"
   },
   "private": true
 }

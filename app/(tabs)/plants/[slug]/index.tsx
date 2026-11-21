@@ -1,7 +1,7 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet } from 'react-native';
-import { Button } from '@/components/common';
+import { Alert, ScrollView, StyleSheet } from 'react-native';
+import { Button, EmptyState, ErrorState, LoadingState } from '@/components/common';
 import { PlantImage } from '@/components/plants';
 import { Text, View } from '@/components/Themed';
 import { MAX_ACTIVE_CROPS, canAddCrop, describeCropError } from '@/features/crops';
@@ -13,28 +13,23 @@ import { palette } from '@/constants/Colors';
 export default function PlantDetailsScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const router = useRouter();
-  const { data: plant, loading, error, reload } = usePlant(slug);
+  const { data: plant, loading, error, offline, reload } = usePlant(slug);
   const { crops, addCrop, removeCrop } = useFarm();
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
   if (loading) {
-    return <ActivityIndicator color={palette.text} style={styles.center} />;
+    return <LoadingState message="Loading plant" />;
   }
   if (error) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.message}>Could not load this plant. Check your connection.</Text>
-        <Button title="Try again" onPress={reload} />
-      </View>
-    );
+    return <ErrorState message="Could not load this plant." offline={offline} onRetry={reload} />;
   }
   if (!plant) {
     return (
-      <View style={styles.center}>
+      <>
         <Stack.Screen options={{ title: 'Not found' }} />
-        <Text style={styles.message}>That plant could not be found.</Text>
-      </View>
+        <EmptyState fullScreen icon="help-circle-outline" message="That plant could not be found" />
+      </>
     );
   }
 

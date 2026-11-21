@@ -6,8 +6,8 @@ import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import 'react-native-reanimated';
 
-import { Button } from '@/components/common';
-import { Text, View } from '@/components/Themed';
+import { Button, ErrorState } from '@/components/common';
+import { View } from '@/components/Themed';
 import { palette } from '@/constants/Colors';
 import { AuthProvider, useAuth } from '@/features/auth';
 
@@ -55,7 +55,7 @@ const navigationTheme: Theme = {
 };
 
 function RootLayoutNav() {
-  const { route, refreshProfile, signOut } = useAuth();
+  const { route, refreshProfile, signOut, profileOffline: offline } = useAuth();
 
   useEffect(() => {
     if (route !== 'loading') {
@@ -72,11 +72,14 @@ function RootLayoutNav() {
       <StatusBar style="light" />
       {route === 'error' ? (
         <View style={[styles.errorContainer, { backgroundColor: palette.background }]}>
-          <Text style={styles.errorText}>
-            Your account could not be loaded. Check your connection.
-          </Text>
-          <Button title="Try again" onPress={refreshProfile} />
-          <Button title="Sign out" variant="link" onPress={signOut} />
+          <ErrorState
+            safeArea
+            message="Your account could not be loaded."
+            offline={offline}
+            onRetry={refreshProfile}
+          >
+            <Button title="Sign out" variant="link" onPress={signOut} />
+          </ErrorState>
         </View>
       ) : (
         // Stack.Protected redirects automatically when a guard changes, for example
@@ -98,6 +101,5 @@ function RootLayoutNav() {
 }
 
 const styles = StyleSheet.create({
-  errorContainer: { flex: 1, justifyContent: 'center', padding: 24, gap: 12 },
-  errorText: { fontSize: 16, textAlign: 'center', marginBottom: 8 },
+  errorContainer: { flex: 1 },
 });
