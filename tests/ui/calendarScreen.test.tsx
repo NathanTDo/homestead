@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 import CalendarScreen from '../../app/(tabs)/calendar/index';
 import * as plantRepository from '../../src/repositories/plantRepository';
 import * as taskRepository from '../../src/repositories/taskRepository';
@@ -16,11 +17,15 @@ jest.mock('expo-router', () => {
       React.useEffect(() => callback(), [callback]),
   };
 });
-jest.mock('../../src/repositories/taskRepository', () => ({ getTasksForMonth: jest.fn() }));
+jest.mock('../../src/repositories/taskRepository', () => ({
+  getTasksForMonth: jest.fn(),
+  getHarvestTasks: jest.fn(),
+}));
 jest.mock('../../src/repositories/plantRepository', () => ({ searchPlants: jest.fn() }));
 jest.mock('../../src/features/farm', () => ({ useFarm: () => ({ crops: [] }) }));
 
 const getTasks = taskRepository.getTasksForMonth as jest.Mock;
+const getHarvestTasks = taskRepository.getHarvestTasks as jest.Mock;
 const searchPlants = plantRepository.searchPlants as jest.Mock;
 
 const today = new Date();
@@ -62,6 +67,7 @@ const task = (overrides: Partial<CalendarTask> = {}): CalendarTask => ({
 beforeEach(() => {
   jest.clearAllMocks();
   searchPlants.mockResolvedValue([]);
+  getHarvestTasks.mockResolvedValue([]);
 });
 
 describe('CalendarScreen', () => {
@@ -120,6 +126,136 @@ describe('CalendarScreen', () => {
     expect(mockPush).toHaveBeenCalledWith('/calendar/task/t1');
   });
 
+  // Day numbers are placed in the grid by weekday. Find a run of days inside one row of this month.
+  const weekdayOf = (day: number) => new Date(today.getFullYear(), today.getMonth(), day).getDay();
+  const startOfRow = (() => {
+    for (let day = 1; day <= 21; day++) if (weekdayOf(day) === 1) return day; // a Monday
+    return 1;
+  })();
+  const harvest = (start: number, end: number) => [
+    task({
+      id: 'h1',
+      title: 'Harvest window begins',
+      task_type: 'harvest_start',
+      scheduled_date: isoDay(start),
+    }),
+    task({
+      id: 'h2',
+      title: 'Harvest window ends',
+      task_type: 'harvest_end',
+      scheduled_date: isoDay(end),
+    }),
+  ];
+
+  it('draws a harvest bar across the days of a harvest window', async () => {
+    getTasks.mockResolvedValue([task({ scheduled_date: isoDay(startOfRow + 5) })]);
+    getHarvestTasks.mockResolvedValue(harvest(startOfRow, startOfRow + 2));
+    await render(<CalendarScreen />);
+    const first = startOfRow;
+    expect(await screen.findByLabelText(dayLabel(first, 'no tasks, harvest window'))).toBeTruthy();
+    expect(screen.getByLabelText(dayLabel(first + 1, 'no tasks, harvest window'))).toBeTruthy();
+    expect(screen.getByLabelText(dayLabel(first + 2, 'no tasks, harvest window'))).toBeTruthy();
+    expect(screen.getByLabelText(dayLabel(first + 3, 'no tasks'))).toBeTruthy();
+    expect(screen.getByLabelText(dayLabel(first - 1, 'no tasks'))).toBeTruthy();
+    expect(screen.getAllByTestId('harvest-bar')).toHaveLength(3);
+  });
+  it('starts the bar at the middle of the first day and ends it at the middle of the last', async () => {
+    getTasks.mockResolvedValue([]);
+    getHarvestTasks.mockResolvedValue(harvest(startOfRow, startOfRow + 2));
+    await render(<CalendarScreen />);
+    const bars = (await screen.findAllByTestId('harvest-bar')).map((bar) =>
+      StyleSheet.flatten(bar.props.style),
+    );
+    expect(bars).toHaveLength(3);
+    // First day: from the middle, rounded on the left, open on the right.
+    expect(bars[0]).toMatchObject({ left: '50%', borderTopLeftRadius: 4, right: 0 });
+    expect(bars[0].borderTopRightRadius).toBeUndefined();
+    // Middle day: edge to edge with square ends.
+    expect(bars[1]).toMatchObject({ left: 0, right: 0 });
+    expect(bars[1].borderTopLeftRadius).toBeUndefined();
+    // Last day: open on the left, to the middle, rounded on the right.
+    expect(bars[2]).toMatchObject({ left: 0, right: '50%', borderTopRightRadius: 4 });
+    expect(bars[2].borderTopLeftRadius).toBeUndefined();
+    expect(bars[0].backgroundColor).toBe('#22C55E');
+  });
+  it('shows a one-day window as a dot', async () => {
+    getTasks.mockResolvedValue([]);
+    getHarvestTasks.mockResolvedValue(harvest(startOfRow, startOfRow));
+    await render(<CalendarScreen />);
+    const [bar] = await screen.findAllByTestId('harvest-bar');
+    expect(StyleSheet.flatten(bar.props.style)).toMatchObject({ width: 7, height: 7 });
+  });
+  it('ends the bar at Saturday and starts it again at Sunday with rounded ends', async () => {
+    // A window from a Friday to the following Monday, wrapping over the weekend.
+    let friday = 1;
+    for (let day = 1; day <= 21; day++)
+      if (weekdayOf(day) === 5) {
+        friday = day;
+        break;
+      }
+    getTasks.mockResolvedValue([]);
+    getHarvestTasks.mockResolvedValue(harvest(friday, friday + 3));
+    await render(<CalendarScreen />);
+    const bars = (await screen.findAllByTestId('harvest-bar')).map((bar) =>
+      StyleSheet.flatten(bar.props.style),
+    );
+    // Fri, Sat, Sun, Mon.
+    expect(bars).toHaveLength(4);
+    expect(bars[0]).toMatchObject({ left: '50%', right: 0 });
+    // Saturday ends in the middle with a rounded end. The segment is open on its left.
+    expect(bars[1]).toMatchObject({ left: 0, right: '50%', borderTopRightRadius: 4 });
+    // Sunday starts in the middle with a rounded start.
+    expect(bars[2]).toMatchObject({ left: '50%', borderTopLeftRadius: 4, right: 0 });
+    expect(bars[3]).toMatchObject({ left: 0, right: '50%', borderTopRightRadius: 4 });
+  });
+  it('opens the day list from a day that only has the bar, and explains the bar', async () => {
+    getTasks.mockResolvedValue([]);
+    getHarvestTasks.mockResolvedValue(harvest(startOfRow, startOfRow + 2));
+    await render(<CalendarScreen />);
+    const middle = await screen.findByLabelText(
+      dayLabel(startOfRow + 1, 'no tasks, harvest window'),
+    );
+    expect(middle.props.accessibilityState?.disabled ?? middle.props.disabled).toBeFalsy();
+    await fireEvent.press(middle);
+    expect(await screen.findByText('Harvest window')).toBeTruthy();
+    expect(screen.getByText(/^Kale · .* to .*$/)).toBeTruthy();
+    expect(screen.queryByText('No activities on this date')).toBeNull();
+    // Opening it goes to the harvest window screen for that crop.
+    await fireEvent.press(screen.getByRole('button', { name: 'Harvest window, Kale' }));
+    expect(mockPush).toHaveBeenCalledWith('/calendar/harvest/c1');
+  });
+  it('extends the bar to the maturity day and gives that day no dot of its own', async () => {
+    getTasks.mockResolvedValue([
+      task({ id: 'm', task_type: 'maturity', scheduled_date: isoDay(startOfRow) }),
+    ]);
+    getHarvestTasks.mockResolvedValue([
+      task({ id: 'm', task_type: 'maturity', scheduled_date: isoDay(startOfRow) }),
+      task({ id: 'h1', task_type: 'harvest_start', scheduled_date: isoDay(startOfRow + 1) }),
+      task({ id: 'h2', task_type: 'harvest_end', scheduled_date: isoDay(startOfRow + 2) }),
+    ]);
+    await render(<CalendarScreen />);
+    // The maturity day is part of the bar and is still tappable.
+    expect(
+      await screen.findByLabelText(dayLabel(startOfRow, '1 task, harvest window')),
+    ).toBeTruthy();
+    expect(screen.getAllByTestId('harvest-bar')).toHaveLength(3);
+  });
+  it('leaves out the dot for harvest window begins and ends, but keeps the day tappable', async () => {
+    getTasks.mockResolvedValue(harvest(startOfRow, startOfRow + 2));
+    getHarvestTasks.mockResolvedValue(harvest(startOfRow, startOfRow + 2));
+    await render(<CalendarScreen />);
+    const day = await screen.findByLabelText(dayLabel(startOfRow, '1 task, harvest window'));
+    expect(day.props.accessibilityState?.disabled ?? day.props.disabled).toBeFalsy();
+    await fireEvent.press(day);
+    expect(await screen.findByText('Harvest window begins')).toBeTruthy();
+  });
+  it('still shows the calendar when the harvest windows fail to load', async () => {
+    getTasks.mockResolvedValue([task()]);
+    getHarvestTasks.mockRejectedValue(new Error('boom'));
+    await render(<CalendarScreen />);
+    expect(await screen.findByLabelText(dayLabel(10, '1 task'))).toBeTruthy();
+    expect(screen.queryAllByTestId('harvest-bar')).toHaveLength(0);
+  });
   it('shows a count when a day has three or more tasks', async () => {
     getTasks.mockResolvedValue([task({ id: 'a' }), task({ id: 'b' }), task({ id: 'c' })]);
     await render(<CalendarScreen />);

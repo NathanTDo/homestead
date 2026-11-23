@@ -115,6 +115,20 @@ the limit trigger dropped, anonymous read access added) and confirming the tests
   `plant_watering_guidelines`.
 - Manual: the widget layout on a phone and a tablet.
 
+### Phase 8: Calendar colors and harvest bar (spec: `.kiro/specs/phase-8-calendar-harvest-bar`)
+
+- Unit: `calendar/logic` covers the blue watering and green milestone colors, one dot per color,
+  pairing harvest start and end tasks, and how the bar is cut into segments per calendar row
+  (one-day runs, wrapping at Saturday and Sunday, overlapping windows, month and year ends), and
+  that maturity and harvest begins and ends get no dot.
+- Screen test: `ui/calendarScreen` checks the bar on the right days, that it starts and ends at the
+  middle of the first and last day, the Saturday and Sunday wrap, and that the calendar still shows tasks if the windows fail to load.
+- Screen test: `ui/harvestWindowScreen` covers the harvest window screen (details, loading, not
+  found, retry).
+- Integration: `calendar` covers `getHarvestTasks` (any month, plant filter, removed crops, other
+  farms).
+- Manual: how the bar and dots look on a phone.
+
 ## Known gaps
 
 - Only the calendar, plants, home and profile screens have render tests. The other screens are checked by hand.

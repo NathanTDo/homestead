@@ -17,9 +17,11 @@ windows and recurring care tasks such as watering and fertilizing.
    5 at a time) or remove it.
 4. **Set up a schedule:** for a crop on your farm, choose a season and a planting date. The app builds
    the schedule on the server.
-5. **Calendar tab:** a month view with dots and counts for days that have tasks, a plant filter, a
-   list of each day's tasks, and a task page where you can mark watering, fertilizing and similar
-   tasks done.
+5. **Calendar tab:** a month view with dots and counts for days that have tasks (watering is blue,
+   milestones are green, other care is orange), a green bar across each harvest window (it takes
+   the place of dots for maturity and the window's first and last day), a plant filter, a list of
+   each day's tasks, and a task page where you can mark watering, fertilizing and similar tasks
+   done. Tap a day on the green bar to see its harvest window and what the bar stands for.
 6. **Home tab:** a weather box showing the current temperature, sky and today's
    high and low for your farm's location.
 7. **Profile tab:** your name, farm, farm location (zip code or city) and sign out.
