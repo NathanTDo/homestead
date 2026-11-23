@@ -1,6 +1,12 @@
 import { StyleSheet } from 'react-native';
 import { Text, View } from '@/components/Themed';
-import { WEEKDAY_LABELS, cellIndicator, type GridWeek } from '@/features/calendar';
+import {
+  WEEKDAY_LABELS,
+  cellIndicator,
+  harvestSegments,
+  type GridWeek,
+  type BarRange,
+} from '@/features/calendar';
 import { palette } from '@/constants/Colors';
 import type { CalendarTask } from '@/types';
 import { DateCell } from './DateCell';
@@ -10,10 +16,18 @@ interface CalendarGridProps {
   tasksByDate: ReadonlyMap<string, CalendarTask[]>;
   /** "YYYY-MM-DD" of today, to highlight. */
   today: string;
+  /** Windows to draw as a bar under each day's dots. */
+  harvestWindows?: readonly BarRange[];
   onSelectDate: (date: string) => void;
 }
 
-export function CalendarGrid({ weeks, tasksByDate, today, onSelectDate }: CalendarGridProps) {
+export function CalendarGrid({
+  weeks,
+  tasksByDate,
+  today,
+  harvestWindows = [],
+  onSelectDate,
+}: CalendarGridProps) {
   return (
     <View style={styles.container}>
       <View style={styles.row}>
@@ -23,20 +37,26 @@ export function CalendarGrid({ weeks, tasksByDate, today, onSelectDate }: Calend
           </Text>
         ))}
       </View>
-      {weeks.map((week, weekIndex) => (
-        <View key={weekIndex} style={styles.row}>
-          {week.map((cell, index) => (
-            <DateCell
-              key={cell?.date ?? `blank-${weekIndex}-${index}`}
-              cell={cell}
-              indicator={cellIndicator(cell ? (tasksByDate.get(cell.date) ?? []) : [])}
-              taskCount={cell ? (tasksByDate.get(cell.date)?.length ?? 0) : 0}
-              isToday={cell?.date === today}
-              onPress={onSelectDate}
-            />
-          ))}
-        </View>
-      ))}
+      {weeks.map((week, weekIndex) => {
+        const segments = harvestSegments(week, harvestWindows);
+        return (
+          <View key={weekIndex} style={styles.row}>
+            {week.map((cell, index) => (
+              <DateCell
+                key={cell?.date ?? `blank-${weekIndex}-${index}`}
+                cell={cell}
+                indicator={cellIndicator(cell ? (tasksByDate.get(cell.date) ?? []) : [], {
+                  hideHarvestMarkers: segments[index] !== null,
+                })}
+                taskCount={cell ? (tasksByDate.get(cell.date)?.length ?? 0) : 0}
+                isToday={cell?.date === today}
+                harvest={segments[index]}
+                onPress={onSelectDate}
+              />
+            ))}
+          </View>
+        );
+      })}
     </View>
   );
 }

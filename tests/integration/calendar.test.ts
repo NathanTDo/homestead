@@ -111,3 +111,61 @@ describe('calendar retrieval', () => {
     expect(await taskRepository.getTasksForMonth({ year: 2025, month: 12 })).toEqual([]);
   });
 });
+
+describe('harvest windows', () => {
+  const data = useTestData();
+  const { admin } = data;
+
+  async function seedWindows() {
+    const user = as(await data.createUser('harvest'));
+    const { crops } = await createTestFarm(user, ['kale', 'peas']);
+    const kale = crops.find((c) => c.plants.slug === 'kale')!;
+    const peas = crops.find((c) => c.plants.slug === 'peas')!;
+    const add = (crop: typeof kale, type: string, date: string) =>
+      insertTask(admin, crop.id, { type, date, key: `${crop.id}:${type}`, title: type });
+    // Kale's window crosses a year end, so no single month holds both of its tasks.
+    await add(kale, 'harvest_start', '2025-12-20');
+    await add(kale, 'harvest_end', '2026-01-10');
+    await add(kale, 'maturity', '2025-12-20');
+    await add(kale, 'watering', '2025-12-21');
+    await add(kale, 'planting', '2025-10-01');
+    await add(peas, 'harvest_start', '2026-03-01');
+    await add(peas, 'harvest_end', '2026-03-15');
+    return { kale, peas };
+  }
+
+  it('returns only maturity and harvest start and end tasks, from any month', async () => {
+    await seedWindows();
+    const tasks = await taskRepository.getHarvestTasks();
+    expect(tasks.map((t) => t.task_type).sort()).toEqual([
+      'harvest_end',
+      'harvest_end',
+      'harvest_start',
+      'harvest_start',
+      'maturity',
+    ]);
+    expect(tasks.map((t) => t.scheduled_date).sort()).toEqual([
+      '2025-12-20',
+      '2025-12-20',
+      '2026-01-10',
+      '2026-03-01',
+      '2026-03-15',
+    ]);
+  });
+  it('filters by plant', async () => {
+    const { peas } = await seedWindows();
+    const tasks = await taskRepository.getHarvestTasks(peas.plant_id);
+    expect(tasks.map((t) => t.plant_name)).toEqual(['Peas', 'Peas']);
+  });
+  it('leaves out removed crops', async () => {
+    const { peas } = await seedWindows();
+    await cropRepository.archiveCrop(peas.id);
+    const tasks = await taskRepository.getHarvestTasks();
+    expect(new Set(tasks.map((t) => t.plant_name))).toEqual(new Set(['Kale']));
+  });
+  it('shows a user nothing from another farm', async () => {
+    await seedWindows();
+    as(await data.createUser('harvest-other'));
+    expect(await taskRepository.getHarvestTasks()).toEqual([]);
+  });
+});

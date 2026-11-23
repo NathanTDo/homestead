@@ -78,6 +78,22 @@ export async function getTasksForMonth(
   return (data as unknown as CalendarRow[]).map(toCalendarTask);
 }
 
+/**
+ * The maturity and "harvest window begins" and "harvest window ends" tasks of every crop that
+ * is not archived, in any month, optionally for one plant. The calendar draws windows that
+ * cross months from these.
+ */
+export async function getHarvestTasks(plantId?: string | null): Promise<CalendarTask[]> {
+  let request = supabase
+    .from('growing_tasks')
+    .select(CALENDAR_COLUMNS)
+    .in('task_type', ['maturity', 'harvest_start', 'harvest_end'])
+    .neq('farm_crops.status', 'archived');
+  if (plantId) request = request.eq('farm_crops.plant_id', plantId);
+  const { data, error } = await request;
+  if (error) throw error;
+  return (data as unknown as CalendarRow[]).map(toCalendarTask);
+}
 /** One task with its plant name, or null if it does not exist or is not visible to the user. */
 export async function getTaskById(taskId: string): Promise<CalendarTask | null> {
   const { data, error } = await supabase

@@ -5,6 +5,7 @@ export default function CalendarLayout() {
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="task/[id]" options={{ title: 'Task' }} />
+      <Stack.Screen name="harvest/[cropId]" options={{ title: 'Harvest window' }} />
     </Stack>
   );
 }

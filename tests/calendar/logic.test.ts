@@ -1,14 +1,19 @@
 import {
+  buildHarvestWindows,
   buildMonthGrid,
   cellIndicator,
   currentMonth,
   groupTasksByDate,
+  harvestSegments,
+  harvestWindowsOn,
+  isHarvestDay,
   monthLabel,
   monthRange,
   shiftMonth,
 } from '../../src/features/calendar/logic';
 import {
   CATEGORY_COLORS,
+  HARVEST_BAR_COLOR,
   TASK_CATEGORY,
   TASK_TYPE_LABELS,
   canCompleteTask,
@@ -139,20 +144,24 @@ describe('cellIndicator', () => {
   it('shows one dot per distinct type of activity for one or two tasks', () => {
     expect(cellIndicator([task()])).toEqual({
       kind: 'dots',
-      colors: [CATEGORY_COLORS.maintenance],
+      colors: [getTaskColor('watering')],
       allDone: false,
     });
     const two = cellIndicator([task({ task_type: 'planting' }), task({ task_type: 'watering' })]);
     expect(two).toEqual({
       kind: 'dots',
-      colors: [CATEGORY_COLORS.milestone, CATEGORY_COLORS.maintenance],
+      colors: [getTaskColor('planting'), getTaskColor('watering')],
       allDone: false,
     });
     // Two waterings on the same day (two plants) share one dot.
     expect(cellIndicator([task(), task()])).toMatchObject({
       kind: 'dots',
-      colors: [CATEGORY_COLORS.maintenance],
+      colors: [getTaskColor('watering')],
     });
+    // Milestones and the harvest window share one green, so they show one dot.
+    expect(
+      cellIndicator([task({ task_type: 'maturity' }), task({ task_type: 'harvest_start' })]),
+    ).toMatchObject({ kind: 'dots', colors: [CATEGORY_COLORS.milestone] });
   });
   it('shows a count for three or more tasks', () => {
     expect(cellIndicator([task(), task(), task()])).toEqual({
@@ -186,10 +195,18 @@ describe('task types', () => {
     expect(getTaskColor('harvest_start')).toBe(CATEGORY_COLORS.harvest);
     expect(getTaskColor('harvest_end')).toBe(CATEGORY_COLORS.harvest);
     expect(getTaskColor('fertilizing')).toBe(CATEGORY_COLORS.maintenance);
-    expect(
-      new Set([CATEGORY_COLORS.milestone, CATEGORY_COLORS.harvest, CATEGORY_COLORS.maintenance])
-        .size,
-    ).toBe(3);
+  });
+  it('colors watering blue and every milestone green', () => {
+    expect(getTaskColor('watering')).toBe('#3B82F6');
+    for (const type of ['planting', 'germination', 'transplanting', 'maturity'] as const) {
+      expect(getTaskColor(type)).toBe('#22C55E');
+    }
+    expect(getTaskColor('harvest_start')).toBe('#22C55E');
+    expect(getTaskColor('harvest_end')).toBe('#22C55E');
+    expect(HARVEST_BAR_COLOR).toBe('#22C55E');
+    // Other care tasks keep their own color, different from watering and the milestones.
+    expect(getTaskColor('fertilizing')).not.toBe(getTaskColor('watering'));
+    expect(getTaskColor('fertilizing')).not.toBe(getTaskColor('planting'));
   });
   it('lets users complete maintenance tasks but not milestones', () => {
     for (const type of [
@@ -211,5 +228,215 @@ describe('task types', () => {
     ] as TaskType[]) {
       expect(canCompleteTask(type)).toBe(false);
     }
+  });
+});
+
+describe('buildHarvestWindows', () => {
+  const at = (task_type: TaskType, scheduled_date: string, farm_crop_id = 'c') =>
+    task({ task_type, scheduled_date, farm_crop_id });
+
+  it('builds a window from the start and end tasks of a crop', () => {
+    expect(
+      buildHarvestWindows([
+        at('harvest_end', '2025-03-20'),
+        at('harvest_start', '2025-03-10'),
+        at('watering', '2025-03-11'),
+      ]),
+    ).toEqual([
+      {
+        farm_crop_id: 'c',
+        plant_id: 'p',
+        plant_name: 'Kale',
+        maturity: null,
+        harvestStart: '2025-03-10',
+        harvestEnd: '2025-03-20',
+        start: '2025-03-10',
+        end: '2025-03-20',
+      },
+    ]);
+  });
+  it('keeps the maturity date and leaves the bar alone when maturity is inside the window', () => {
+    const [window] = buildHarvestWindows([
+      at('maturity', '2025-03-10'),
+      at('harvest_start', '2025-03-10'),
+      at('harvest_end', '2025-03-20'),
+    ]);
+    expect(window).toMatchObject({
+      maturity: '2025-03-10',
+      start: '2025-03-10',
+      end: '2025-03-20',
+    });
+  });
+  it('extends the bar to cover a maturity date before the window or after it', () => {
+    const [early] = buildHarvestWindows([
+      at('maturity', '2025-03-05'),
+      at('harvest_start', '2025-03-10'),
+      at('harvest_end', '2025-03-20'),
+    ]);
+    expect(early).toMatchObject({
+      harvestStart: '2025-03-10',
+      start: '2025-03-05',
+      end: '2025-03-20',
+    });
+    const [late] = buildHarvestWindows([
+      at('maturity', '2025-03-25'),
+      at('harvest_start', '2025-03-10'),
+      at('harvest_end', '2025-03-20'),
+    ]);
+    expect(late).toMatchObject({
+      harvestEnd: '2025-03-20',
+      start: '2025-03-10',
+      end: '2025-03-25',
+    });
+  });
+  it('keeps crops apart', () => {
+    const windows = buildHarvestWindows([
+      at('harvest_start', '2025-03-10', 'a'),
+      at('harvest_end', '2025-03-12', 'a'),
+      at('harvest_start', '2025-04-01', 'b'),
+      at('harvest_end', '2025-04-05', 'b'),
+      at('maturity', '2025-03-01', 'b'),
+    ]);
+    expect(windows.map((w) => [w.farm_crop_id, w.start])).toEqual([
+      ['a', '2025-03-10'],
+      ['b', '2025-03-01'],
+    ]);
+  });
+  it('ignores a crop with a missing end or an end before its start, or only a maturity date', () => {
+    expect(buildHarvestWindows([at('harvest_start', '2025-03-10')])).toEqual([]);
+    expect(buildHarvestWindows([at('harvest_end', '2025-03-10')])).toEqual([]);
+    expect(buildHarvestWindows([at('maturity', '2025-03-10')])).toEqual([]);
+    expect(
+      buildHarvestWindows([at('harvest_start', '2025-03-10'), at('harvest_end', '2025-03-09')]),
+    ).toEqual([]);
+  });
+});
+
+describe('harvestWindowsOn', () => {
+  const window = (farm_crop_id: string, start: string, end: string) =>
+    buildHarvestWindows([
+      task({ task_type: 'harvest_start', scheduled_date: start, farm_crop_id }),
+      task({ task_type: 'harvest_end', scheduled_date: end, farm_crop_id }),
+    ])[0];
+  const windows = [
+    window('a', '2025-03-10', '2025-03-12'),
+    window('b', '2025-03-12', '2025-03-15'),
+  ];
+
+  it('returns every window whose bar covers the day, ends included', () => {
+    expect(harvestWindowsOn('2025-03-09', windows)).toEqual([]);
+    expect(harvestWindowsOn('2025-03-10', windows).map((w) => w.farm_crop_id)).toEqual(['a']);
+    expect(harvestWindowsOn('2025-03-12', windows).map((w) => w.farm_crop_id)).toEqual(['a', 'b']);
+    expect(harvestWindowsOn('2025-03-15', windows).map((w) => w.farm_crop_id)).toEqual(['b']);
+    expect(harvestWindowsOn('2025-03-16', windows)).toEqual([]);
+  });
+});
+
+describe('isHarvestDay', () => {
+  const windows = [{ farm_crop_id: 'c', start: '2025-03-10', end: '2025-03-12' }];
+
+  it('includes the first and last day and nothing outside', () => {
+    expect(isHarvestDay('2025-03-09', windows)).toBe(false);
+    expect(isHarvestDay('2025-03-10', windows)).toBe(true);
+    expect(isHarvestDay('2025-03-12', windows)).toBe(true);
+    expect(isHarvestDay('2025-03-13', windows)).toBe(false);
+    expect(isHarvestDay('2025-03-10', [])).toBe(false);
+  });
+});
+
+describe('harvestSegments', () => {
+  // Weeks of March 2025: the 1st is a Saturday, so row 2 is Sun the 2nd to Sat the 8th.
+  const weeks = buildMonthGrid({ year: 2025, month: 3 });
+  const win = (start: string, end: string, farm_crop_id = 'c') => ({ farm_crop_id, start, end });
+  const shape = (week: (typeof weeks)[number], windows: ReturnType<typeof win>[]) =>
+    harvestSegments(week, windows).map((s) =>
+      s ? `${s.startsHere ? '[' : '-'}${s.endsHere ? ']' : '-'}` : '.',
+    );
+
+  it('is empty when there are no windows', () => {
+    expect(harvestSegments(weeks[1], []).every((s) => s === null)).toBe(true);
+  });
+  it('starts and ends the run inside a week', () => {
+    // Mon 3rd to Wed 5th.
+    expect(shape(weeks[1], [win('2025-03-03', '2025-03-05')])).toEqual([
+      '.',
+      '[-',
+      '--',
+      '-]',
+      '.',
+      '.',
+      '.',
+    ]);
+  });
+  it('shows a one-day window as a single segment that starts and ends', () => {
+    expect(harvestSegments(weeks[1], [win('2025-03-04', '2025-03-04')])[2]).toEqual({
+      startsHere: true,
+      endsHere: true,
+    });
+  });
+  it('ends the run at Saturday and starts a new one at the next Sunday when a window wraps', () => {
+    const wrapping = [win('2025-03-05', '2025-03-11')];
+    // Row 2: Wed 5th to Sat 8th. Row 3: Sun 9th to Tue 11th.
+    expect(shape(weeks[1], wrapping)).toEqual(['.', '.', '.', '[-', '--', '--', '-]']);
+    expect(shape(weeks[2], wrapping)).toEqual(['[-', '--', '-]', '.', '.', '.', '.']);
+  });
+  it('gives a window that starts on Saturday a one-day segment, then continues next Sunday', () => {
+    const wrapping = [win('2025-03-08', '2025-03-10')];
+    expect(harvestSegments(weeks[1], wrapping)[6]).toEqual({ startsHere: true, endsHere: true });
+    expect(shape(weeks[2], wrapping)).toEqual(['[-', '-]', '.', '.', '.', '.', '.']);
+  });
+  it('joins windows that touch or overlap into one run', () => {
+    const two = [win('2025-03-03', '2025-03-04', 'a'), win('2025-03-04', '2025-03-06', 'b')];
+    expect(shape(weeks[1], two)).toEqual(['.', '[-', '--', '--', '-]', '.', '.']);
+  });
+  it('ends the run at a blank cell outside the month', () => {
+    // Mar 31 is a Monday, so the rest of the last row is blank.
+    const last = weeks[weeks.length - 1];
+    expect(shape(last, [win('2025-03-30', '2025-04-05')])).toEqual([
+      '[-',
+      '-]',
+      '.',
+      '.',
+      '.',
+      '.',
+      '.',
+    ]);
+  });
+  it('treats the covered days across a month and year end as covered', () => {
+    const dec = buildMonthGrid({ year: 2025, month: 12 });
+    const jan = buildMonthGrid({ year: 2026, month: 1 });
+    const across = [win('2025-12-30', '2026-01-02')];
+    expect(harvestSegments(dec[dec.length - 1], across).filter(Boolean)).toHaveLength(2);
+    expect(harvestSegments(jan[0], across).filter(Boolean)).toHaveLength(2);
+  });
+});
+
+describe('cellIndicator with hideHarvestMarkers', () => {
+  const start = task({ task_type: 'harvest_start' });
+  const end = task({ task_type: 'harvest_end' });
+
+  it('drops the harvest window begins and ends tasks from the dots', () => {
+    expect(cellIndicator([start], { hideHarvestMarkers: true })).toEqual({ kind: 'none' });
+    expect(cellIndicator([end], { hideHarvestMarkers: true })).toEqual({ kind: 'none' });
+    expect(cellIndicator([start, task()], { hideHarvestMarkers: true })).toEqual({
+      kind: 'dots',
+      colors: [getTaskColor('watering')],
+      allDone: false,
+    });
+  });
+  it('also drops the maturity task, which the bar covers', () => {
+    expect(cellIndicator([task({ task_type: 'maturity' })], { hideHarvestMarkers: true })).toEqual({
+      kind: 'none',
+    });
+    expect(cellIndicator([task({ task_type: 'maturity' })]).kind).toBe('dots');
+  });
+  it('does not count them in the badge', () => {
+    expect(
+      cellIndicator([start, task(), task(), task()], { hideHarvestMarkers: true }),
+    ).toMatchObject({ kind: 'count', count: 3 });
+    expect(cellIndicator([start, task(), task()], { hideHarvestMarkers: true }).kind).toBe('dots');
+  });
+  it('keeps them when the bar is not drawn', () => {
+    expect(cellIndicator([start]).kind).toBe('dots');
   });
 });

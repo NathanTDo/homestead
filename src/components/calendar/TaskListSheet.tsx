@@ -1,7 +1,8 @@
 import { Modal, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { EmptyState } from '@/components/common';
 import { Text, View } from '@/components/Themed';
-import { TASK_TYPE_LABELS, getTaskColor } from '@/constants/taskTypes';
+import { HARVEST_BAR_COLOR, TASK_TYPE_LABELS, getTaskColor } from '@/constants/taskTypes';
+import type { HarvestWindow } from '@/features/calendar';
 import { palette } from '@/constants/Colors';
 import type { CalendarTask } from '@/types';
 import { formatDate } from '@/utils/dates';
@@ -10,12 +11,22 @@ interface TaskListSheetProps {
   /** The day being shown, or null when the sheet is closed. */
   date: string | null;
   tasks: readonly CalendarTask[];
+  /** Harvest windows whose green bar covers this day. */
+  harvestWindows?: readonly HarvestWindow[];
   onClose: () => void;
   onSelectTask: (task: CalendarTask) => void;
+  onSelectHarvestWindow?: (window: HarvestWindow) => void;
 }
 
 /** A bottom sheet listing every task on one day. */
-export function TaskListSheet({ date, tasks, onClose, onSelectTask }: TaskListSheetProps) {
+export function TaskListSheet({
+  date,
+  tasks,
+  harvestWindows = [],
+  onClose,
+  onSelectTask,
+  onSelectHarvestWindow,
+}: TaskListSheetProps) {
   return (
     <Modal visible={date !== null} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable
@@ -39,9 +50,26 @@ export function TaskListSheet({ date, tasks, onClose, onSelectTask }: TaskListSh
           </Pressable>
         </View>
         <ScrollView>
-          {tasks.length === 0 ? (
+          {tasks.length === 0 && harvestWindows.length === 0 ? (
             <EmptyState message="No activities on this date" icon="calendar-outline" />
           ) : null}
+          {harvestWindows.map((window) => (
+            <Pressable
+              key={window.farm_crop_id}
+              accessibilityRole="button"
+              accessibilityLabel={`Harvest window, ${window.plant_name}`}
+              onPress={() => onSelectHarvestWindow?.(window)}
+              style={styles.item}
+            >
+              <View style={[styles.swatch, { backgroundColor: HARVEST_BAR_COLOR }]} />
+              <View style={styles.itemText}>
+                <Text style={styles.itemTitle}>Harvest window</Text>
+                <Text style={styles.itemMeta}>
+                  {window.plant_name} · {formatDate(window.start)} to {formatDate(window.end)}
+                </Text>
+              </View>
+            </Pressable>
+          ))}
           {tasks.map((task) => {
             const done = task.completed_at !== null;
             return (

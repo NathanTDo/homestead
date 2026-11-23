@@ -16,12 +16,21 @@ export const TASK_CATEGORY: Record<TaskType, TaskCategory> = {
   other: 'other',
 };
 
+/** Every important milestone is green: planting, germination, maturity and the harvest window. */
+const MILESTONE_GREEN = '#22C55E';
+const WATERING_BLUE = '#3B82F6';
 export const CATEGORY_COLORS: Record<TaskCategory, string> = {
-  milestone: '#3B82F6', // blue
-  harvest: '#22C55E', // green
+  milestone: MILESTONE_GREEN,
+  harvest: MILESTONE_GREEN,
   maintenance: '#F97316', // orange
   other: '#9CA3AF', // gray
 };
+/** Task types that stand out from the color of their category. */
+const TASK_TYPE_COLORS: Partial<Record<TaskType, string>> = {
+  watering: WATERING_BLUE,
+};
+/** The color of the bar that marks harvest windows on the calendar. */
+export const HARVEST_BAR_COLOR = CATEGORY_COLORS.harvest;
 
 export const CATEGORY_LABELS: Record<TaskCategory, string> = {
   milestone: 'Growing milestone',
@@ -55,7 +64,7 @@ export const TASK_TYPE_HELP: Partial<Record<TaskType, string>> = {
 };
 
 export function getTaskColor(type: TaskType): string {
-  return CATEGORY_COLORS[TASK_CATEGORY[type]];
+  return TASK_TYPE_COLORS[type] ?? CATEGORY_COLORS[TASK_CATEGORY[type]];
 }
 
 /** Maintenance tasks can be ticked off by the user. Milestones are dates to watch for. */

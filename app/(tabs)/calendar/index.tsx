@@ -17,6 +17,9 @@ import {
   monthLabel,
   shiftMonth,
   useCalendarTasks,
+  harvestWindowsOn,
+  useHarvestWindows,
+  type HarvestWindow,
   type MonthRef,
 } from '@/features/calendar';
 import { useFarm } from '@/features/farm';
@@ -55,16 +58,21 @@ export default function CalendarScreen() {
     activePlantId,
   );
 
+  const { windows: harvestWindows, refresh: refreshHarvest } = useHarvestWindows(activePlantId);
   // Coming back from a task screen: pick up changes such as a completed task, without a spinner.
   const hasFocusedOnce = useRef(false);
   useFocusEffect(
     useCallback(() => {
-      if (hasFocusedOnce.current) refresh();
+      if (hasFocusedOnce.current) {
+        refresh();
+        refreshHarvest();
+      }
       hasFocusedOnce.current = true;
-    }, [refresh]),
+    }, [refresh, refreshHarvest]),
   );
 
   const weeks = useMemo(() => buildMonthGrid(month), [month]);
+  const selectedWindows = selectedDate ? harvestWindowsOn(selectedDate, harvestWindows) : [];
   const selectedTasks = selectedDate ? (tasksByDate.get(selectedDate) ?? []) : [];
 
   function openTask(task: CalendarTask) {
@@ -72,6 +80,10 @@ export default function CalendarScreen() {
     router.push(`/calendar/task/${task.id}`);
   }
 
+  function openHarvestWindow(window: HarvestWindow) {
+    setSelectedDate(null);
+    router.push(`/calendar/harvest/${window.farm_crop_id}`);
+  }
   return (
     <ScrollView style={{ paddingTop: insets.top }} contentContainerStyle={styles.content}>
       <Text accessibilityRole="header" style={styles.title}>
@@ -98,6 +110,7 @@ export default function CalendarScreen() {
           weeks={weeks}
           tasksByDate={tasksByDate}
           today={todayIso()}
+          harvestWindows={harvestWindows}
           onSelectDate={setSelectedDate}
         />
       </View>
@@ -126,8 +139,10 @@ export default function CalendarScreen() {
       <TaskListSheet
         date={selectedDate}
         tasks={selectedTasks}
+        harvestWindows={selectedWindows}
         onClose={() => setSelectedDate(null)}
         onSelectTask={openTask}
+        onSelectHarvestWindow={openHarvestWindow}
       />
     </ScrollView>
   );
