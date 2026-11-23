@@ -20,7 +20,9 @@ windows and recurring care tasks such as watering and fertilizing.
 5. **Calendar tab:** a month view with dots and counts for days that have tasks, a plant filter, a
    list of each day's tasks, and a task page where you can mark watering, fertilizing and similar
    tasks done.
-6. **Profile tab:** your name, farm and sign out.
+6. **Home tab:** a weather box showing the current temperature, sky and today's
+   high and low for your farm's location.
+7. **Profile tab:** your name, farm, farm location (zip code or city) and sign out.
 
 ## Tech stack
 
@@ -164,7 +166,8 @@ homestead/
 │   ├── components/
 │   │   ├── common/               Button, form fields, chips, date field, loading/error/empty states
 │   │   ├── calendar/             Month grid, date cell, header, plant filter, task sheet
-│   │   └── plants/               Plant card and image, "Your Crops" panel
+│   │   ├── plants/               Plant card and image, "Your Crops" panel
+│   │   └── weather/              Weather widget for the home tab
 │   ├── features/                 Logic grouped by topic (no direct database calls)
 │   │   ├── auth/                 AuthProvider, route guard, validation, error messages
 │   │   ├── farm/                 FarmProvider: the user's farm and crops, shared by all tabs
@@ -172,9 +175,11 @@ homestead/
 │   │   ├── plants/               Plant search and hooks
 │   │   ├── crops/                The 5-crop limit and its messages
 │   │   ├── templates/            Template choices and schedule error messages
-│   │   └── calendar/             Month grid, month math, grouping, calendar hooks
+│   │   ├── calendar/             Month grid, month math, grouping, calendar hooks
+│   │   └── weather/              Weather hook, weather codes, warm/mild/cool logic
 │   ├── repositories/             The only code that talks to Supabase (see Architecture)
 │   ├── services/supabase/        The Supabase client
+│   ├── services/weather/         Open-Meteo location lookup and forecast
 │   ├── hooks/                    useAsyncData, useScreenPadding
 │   ├── constants/                Colors, task types and their colors
 │   ├── types/                    Database types
@@ -225,6 +230,7 @@ Screen  ->  hook / feature logic  ->  repository  ->  Supabase client  ->  Postg
 | `farms`, `farm_members`           | A farm and who belongs to it. The MVP has one farm per user.                              |
 | `plants`                          | The 15-crop catalog. Read-only for users.                                                 |
 | `growing_templates`, `care_rules` | How each crop grows in a season, and its recurring care. Read-only.                       |
+| `plant_watering_guidelines`       | How often to water each plant in warm, mild and cool weather. Read-only.                  |
 | `farm_crops`                      | A plant on a farm: `planned` (chosen), `active` (has a schedule) or `archived` (removed). |
 | `growing_tasks`                   | One row per scheduled task. A crop's schedule is simply its tasks.                        |
 
@@ -234,11 +240,25 @@ Rules worth knowing, all in `supabase/migrations/`:
 - `create_farm_with_member` creates the farm, the owner membership, any starting crops and marks
   onboarding complete, all in one transaction. It takes the user from the session, never from the
   caller.
+- A farm's location is saved from onboarding and owners change it with `update_farm_location`. Users
+  cannot update `farms` directly.
 - A farm can have at most 5 `planned` or `active` crops (`enforce_crop_limit`). It takes a lock per
   farm, so simultaneous requests cannot exceed the limit.
 - Removing a crop **archives** it. Its tasks are kept, and a crop that has tasks cannot be deleted.
 - Users can read and update their own tasks but cannot create them. Tasks are created only by the
   server through `generate_tasks`, which only the service role can run.
+
+## Weather
+
+The home tab shows the weather for the farm's location. The app looks the location up (a US zip code
+or a place name) and fetches the weather from [Open-Meteo](https://open-meteo.com), which needs no
+API key. Its free tier is for non-commercial use only. The text of the location is sent to Open-Meteo.
+The weather is fetched each time the home tab loads and is not cached.
+
+`plant_watering_guidelines` holds how often to water each plant in warm (average high of 75°F or more),
+mild (60 to 75°F) and cool (below 60°F) weather. Nothing in the app shows these yet. They are for the
+planned daily reminders feature. Like the growing templates, they are general guidance and have not
+been checked against a local extension service. The seed file is the place to correct them.
 
 ## Growing template system
 
@@ -358,5 +378,6 @@ For testing on your own device, a [development build](https://docs.expo.dev/deve
 - A signed-in user can edit the fields of their own tasks through the API, not just mark them done. The
   app only changes the completed time. A database rule could restrict this.
 - The MVP supports one farm per user and has no push notifications.
+- The weather widget needs a farm location and a connection. The weather is in °F and is not cached.
 - Only the calendar and plants screens have render tests. The other screens are checked by hand.
 - The calendar week starts on Sunday.

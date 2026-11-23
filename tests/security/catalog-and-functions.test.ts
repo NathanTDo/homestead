@@ -131,3 +131,37 @@ describe('server-only database functions', () => {
     expect(farm?.created_by).toBe(user.id);
   });
 });
+
+describe('plant_watering_guidelines', () => {
+  const data = useTestData();
+  const { admin } = data;
+
+  it('can be read but not changed by a signed-in user', async () => {
+    const user = await data.createUser('guidelines');
+    const { data: plant } = await admin.from('plants').select('id').eq('slug', 'kale').single();
+
+    expect((await user.client.from('plant_watering_guidelines').select('id')).error).toBeNull();
+    expect(
+      (
+        await user.client.from('plant_watering_guidelines').insert({
+          plant_id: plant!.id,
+          weather: 'warm',
+          min_interval_days: 1,
+          max_interval_days: 1,
+        })
+      ).error,
+    ).not.toBeNull();
+
+    // Updates and deletes change no rows.
+    await user.client
+      .from('plant_watering_guidelines')
+      .update({ min_interval_days: 99 })
+      .neq('id', '');
+    await user.client.from('plant_watering_guidelines').delete().eq('plant_id', plant!.id);
+    const { count } = await admin
+      .from('plant_watering_guidelines')
+      .select('id', { count: 'exact', head: true })
+      .eq('min_interval_days', 99);
+    expect(count).toBe(0);
+  });
+});

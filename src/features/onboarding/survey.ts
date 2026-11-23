@@ -84,3 +84,25 @@ export function describeCreateFarmError(error: unknown): string {
 export function isAlreadyOnboardedError(error: unknown): boolean {
   return getErrorMessage(error).includes('already_onboarded');
 }
+
+/** Returns an error message, or null if the farm location is valid. An empty location is allowed. */
+export function validateLocation(location: string): string | null {
+  if (location.trim().length > MAX_LOCATION_LENGTH) {
+    return `Location must be ${MAX_LOCATION_LENGTH} characters or fewer.`;
+  }
+  return null;
+}
+
+/** Maps an update_farm_location error to a message for the user. */
+export function describeLocationError(error: unknown): string {
+  const message = getErrorMessage(error);
+  if (message.includes('invalid_location')) {
+    return `Location must be ${MAX_LOCATION_LENGTH} characters or fewer.`;
+  }
+  if (message.includes('not_authenticated')) return 'Your session expired. Sign in again.';
+  if (message.includes('farm_not_found')) return 'Only the farm owner can change the location.';
+  if (/network|fetch|connect|timed? ?out/i.test(message)) {
+    return 'Could not reach the server. Check your connection and try again.';
+  }
+  return 'Could not save the location. Try again.';
+}

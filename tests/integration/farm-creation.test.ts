@@ -137,3 +137,41 @@ describe('create_farm_with_member', () => {
     await expect(farmRepository.createFarmWithMember('Nope', {})).rejects.toThrow();
   });
 });
+
+describe('farm location', () => {
+  const data = useTestData();
+
+  it('stores the onboarding location on the farm', async () => {
+    const user = as(await data.createUser('loc-create'));
+    await farmRepository.createFarmWithMember('Loc Farm', { farming_location: '  94103 ' });
+    expect((await farmRepository.getFarmForUser(user.id))?.location).toBe('94103');
+  });
+
+  it('lets the owner change and clear it with update_farm_location', async () => {
+    const user = as(await data.createUser('loc-update'));
+    const farmId = await farmRepository.createFarmWithMember('Loc Farm', {});
+    expect(await farmRepository.updateFarmLocation(farmId, ' Portland, OR ')).toBe('Portland, OR');
+    expect((await farmRepository.getFarmForUser(user.id))?.location).toBe('Portland, OR');
+    expect(await farmRepository.updateFarmLocation(farmId, '  ')).toBeNull();
+    expect((await farmRepository.getFarmForUser(user.id))?.location).toBeNull();
+  });
+
+  it('rejects a location over 100 characters', async () => {
+    as(await data.createUser('loc-long'));
+    const farmId = await farmRepository.createFarmWithMember('Loc Farm', {});
+    await expect(farmRepository.updateFarmLocation(farmId, 'x'.repeat(101))).rejects.toThrow(
+      'invalid_location',
+    );
+  });
+
+  it("does not let another user change someone else's farm", async () => {
+    const owner = as(await data.createUser('loc-owner'));
+    const farmId = await farmRepository.createFarmWithMember('Loc Farm', { farming_location: '1' });
+    as(await data.createUser('loc-other'));
+    await expect(farmRepository.updateFarmLocation(farmId, 'hacked')).rejects.toThrow(
+      'farm_not_found',
+    );
+    as(owner);
+    expect((await farmRepository.getFarmForUser(owner.id))?.location).toBe('1');
+  });
+});

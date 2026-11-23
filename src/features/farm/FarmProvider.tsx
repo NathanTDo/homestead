@@ -19,6 +19,8 @@ interface FarmContextValue {
   removeCrop: (cropId: string) => Promise<void>;
   /** Reloads the crops, e.g. after a schedule was created and a crop became active. */
   refreshCrops: () => Promise<void>;
+  /** Saves the farm's location (zip code or place name). An empty string clears it. */
+  setLocation: (location: string) => Promise<void>;
 }
 
 interface Loaded {
@@ -110,6 +112,18 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
     [updateCrops],
   );
 
+  const setLocation = useCallback(
+    async (location: string) => {
+      if (!farm) return;
+      const saved = await farmRepository.updateFarmLocation(farm.id, location);
+      setLoaded((prev) =>
+        prev && prev.key === key && prev.farm
+          ? { ...prev, farm: { ...prev.farm, location: saved } }
+          : prev,
+      );
+    },
+    [farm, key],
+  );
   const refreshCrops = useCallback(async () => {
     if (!farm) return;
     const fresh = await cropRepository.listCrops(farm.id, ACTIVE_STATUSES);
@@ -132,8 +146,8 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
   }, [userId, refreshProfile]);
 
   const value = useMemo<FarmContextValue | null>(
-    () => (farm ? { farm, crops, addCrop, removeCrop, refreshCrops } : null),
-    [farm, crops, addCrop, removeCrop, refreshCrops],
+    () => (farm ? { farm, crops, addCrop, removeCrop, refreshCrops, setLocation } : null),
+    [farm, crops, addCrop, removeCrop, refreshCrops, setLocation],
   );
 
   if (!current) {

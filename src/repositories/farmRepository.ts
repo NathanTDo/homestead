@@ -66,3 +66,17 @@ export async function updateFarm(farmId: string, updates: Partial<CreateFarmInpu
   if (error) throw error;
   return data;
 }
+
+/**
+ * Sets the farm's location (a zip code or place name), or clears it with an empty string.
+ * Only a farm owner can do this. Returns the saved, trimmed location, or null if cleared.
+ * Throws an Error whose message is one of: not_authenticated, invalid_location, farm_not_found.
+ */
+export async function updateFarmLocation(farmId: string, location: string): Promise<string | null> {
+  const { data, error } = await supabase.rpc('update_farm_location', {
+    p_farm_id: farmId,
+    p_location: location,
+  });
+  if (error) throw new Error(error.message);
+  return (data as string | null) ?? null;
+}
