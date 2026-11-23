@@ -1,5 +1,6 @@
 export type CropStatus = 'planned' | 'active' | 'archived';
 export type Season = 'spring' | 'summer' | 'fall' | 'winter';
+export type WeatherCondition = 'warm' | 'mild' | 'cool';
 export type FarmMemberRole = 'owner' | 'member';
 export type ActivityType = 'watering' | 'fertilizing' | 'pruning' | 'pest_inspection' | 'other';
 export type TaskType =
@@ -82,6 +83,15 @@ export interface CareRule {
   created_at: string;
 }
 
+export interface PlantWateringGuideline {
+  id: string;
+  plant_id: string;
+  weather: WeatherCondition;
+  min_interval_days: number;
+  max_interval_days: number;
+  notes: string | null;
+  created_at: string;
+}
 export interface FarmCrop {
   id: string;
   farm_id: string;

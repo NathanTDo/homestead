@@ -102,7 +102,20 @@ that does not use the real network.
 The security tests were checked by breaking each protection on purpose (row level security off,
 the limit trigger dropped, anonymous read access added) and confirming the tests fail.
 
+### Phase 7: Farm location and weather (spec: `.kiro/specs/phase-7-weather-location`)
+
+- Unit: `weather/logic` (warm, mild and cool bands, forecast summary, rain flag, reminders),
+  `weather/conditions` (weather code labels) and `weather/openMeteo` (zip and place lookup, state
+  preference, failures, response mapping, with `fetch` mocked). No test calls the real Open-Meteo.
+- Screen tests: `ui/homeScreen` (widget values, loading, no location, location not found, offline with
+  retry) and `ui/profileScreen` (location field, disabled Save, save, clear, failure, length check).
+- Integration: `farm-creation` also covers the onboarding location, the owner changing and clearing
+  it, the 100 character limit and a non-owner being refused.
+- Security: `security/catalog-and-functions` checks that users can read but not change
+  `plant_watering_guidelines`.
+- Manual: the widget layout on a phone and a tablet.
+
 ## Known gaps
 
-- Only the calendar and plants screens have render tests. The other screens are checked by hand.
+- Only the calendar, plants, home and profile screens have render tests. The other screens are checked by hand.
 - Screen sizes (iPhone SE to Pro Max) are checked by hand on a device.

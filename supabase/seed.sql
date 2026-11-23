@@ -72,3 +72,63 @@ CROSS JOIN LATERAL (
     ('watering',    'Water the plants',     0,            d.water_every, d.harvest_end),
     ('fertilizing', 'Apply fertilizer',     d.fert_start, d.fert_every,  d.maturity)
 ) AS r (activity_type, description, start_day, interval_days, end_day);
+-- ---------------------------------------------------------------------------
+-- Weather-based watering guidelines (general horticultural guidance, compiled from
+-- ChatGPT research; not yet verified against a local extension service).
+-- Weather: warm (above ~75°F / 24°C), mild (~60-75°F / 15-24°C), cool (below ~60°F / 15°C).
+-- Intervals are in days between waterings and assume no meaningful rain; check that the
+-- top inch of soil is dry first. Columns: slug, weather, min days, max days, notes.
+-- ---------------------------------------------------------------------------
+WITH guideline_data (slug, weather, min_days, max_days, notes) AS (
+  VALUES
+    ('garlic',      'warm', 3, 4, 'Bulbs are sizing up, so keep soil evenly moist. Stop watering 2 weeks before harvest.'),
+    ('garlic',      'mild', 4, 7, 'Water when the top inch of soil is dry.'),
+    ('garlic',      'cool', 7, 10, 'Mostly dormant. Water only during dry spells and avoid soggy soil.'),
+    ('peas',        'warm', 1, 2, 'Peas stall in heat. Mulch and keep soil evenly moist, especially at flowering and pod fill.'),
+    ('peas',        'mild', 2, 3, 'Keep soil consistently moist, not wet.'),
+    ('peas',        'cool', 3, 5, 'Depends on rainfall. Avoid waterlogged soil, which causes rot.'),
+    ('bok-choy',    'warm', 1, 2, 'Dry spells cause bolting and bitter leaves. Mulch to hold moisture.'),
+    ('bok-choy',    'mild', 2, 3, 'Keep soil evenly moist.'),
+    ('bok-choy',    'cool', 3, 4, 'Water less often, depending on rainfall and drainage.'),
+    ('lettuce',     'warm', 1, 2, 'Shallow roots dry out fast. Water daily if needed and shade in afternoon heat.'),
+    ('lettuce',     'mild', 2, 3, 'Keep the top inch of soil moist.'),
+    ('lettuce',     'cool', 3, 4, 'Slow growth means less water. Avoid wet leaves in cold weather.'),
+    ('arugula',     'warm', 1, 2, 'Heat and dry soil make it bolt and turn very peppery. Keep soil moist.'),
+    ('arugula',     'mild', 2, 3, 'Water regularly for tender leaves.'),
+    ('arugula',     'cool', 3, 5, 'Water only when the top of the soil is dry.'),
+    ('spinach',     'warm', 1, 2, 'Bolts quickly in heat. Keep soil cool and moist with mulch.'),
+    ('spinach',     'mild', 2, 3, 'Keep soil evenly moist.'),
+    ('spinach',     'cool', 3, 5, 'Tolerates cold. Water based on rainfall and soil dryness.'),
+    ('celtuce',     'warm', 1, 2, 'Uneven watering makes the stem woody or bitter. Keep moisture steady.'),
+    ('celtuce',     'mild', 2, 3, 'Water deeply and evenly.'),
+    ('celtuce',     'cool', 3, 5, 'Water when the soil surface is dry.'),
+    ('gai-lan',     'warm', 1, 2, 'Keep soil moist for tender stems. Mulch to reduce evaporation.'),
+    ('gai-lan',     'mild', 2, 3, 'Water evenly.'),
+    ('gai-lan',     'cool', 3, 5, 'Depends on rainfall and soil conditions.'),
+    ('chives',      'warm', 2, 3, 'Water regularly. Established clumps tolerate short dry periods.'),
+    ('chives',      'mild', 3, 4, 'Water when the top inch of soil is dry.'),
+    ('chives',      'cool', 5, 7, 'Growth slows or goes dormant. Water sparingly.'),
+    ('radish',      'warm', 1, 2, 'Irregular watering causes split, woody or very hot roots. Keep soil evenly moist.'),
+    ('radish',      'mild', 2, 3, 'Keep soil evenly moist.'),
+    ('radish',      'cool', 3, 4, 'Water lightly, depending on rainfall.'),
+    ('daikon',      'warm', 1, 2, 'Deep, even moisture prevents cracked or forked roots.'),
+    ('daikon',      'mild', 2, 3, 'Water deeply and evenly.'),
+    ('daikon',      'cool', 3, 5, 'Water deeply but less often. Avoid waterlogged soil.'),
+    ('kale',        'warm', 2, 3, 'Water deeply. Mulch to keep roots cool and leaves from turning tough.'),
+    ('kale',        'mild', 3, 4, 'Water when the top inch of soil is dry.'),
+    ('kale',        'cool', 4, 7, 'Hardy in cold. Water only when the soil is dry, depending on rainfall.'),
+    ('cilantro',    'warm', 1, 2, 'Bolts fast in heat. Keep soil moist and give afternoon shade.'),
+    ('cilantro',    'mild', 2, 3, 'Keep soil lightly and evenly moist.'),
+    ('cilantro',    'cool', 3, 5, 'Water when the soil surface is dry.'),
+    ('crown-daisy', 'warm', 1, 2, 'Keep soil moist to delay bolting and keep leaves tender.'),
+    ('crown-daisy', 'mild', 2, 3, 'Water evenly.'),
+    ('crown-daisy', 'cool', 3, 5, 'Water based on rainfall and how quickly the soil dries.'),
+    ('kohlrabi',    'warm', 1, 2, 'Steady moisture keeps the swollen stem tender and prevents splitting.'),
+    ('kohlrabi',    'mild', 2, 3, 'Water evenly.'),
+    ('kohlrabi',    'cool', 3, 5, 'Depends on rainfall and soil conditions.')
+)
+INSERT INTO plant_watering_guidelines (plant_id, weather, min_interval_days, max_interval_days, notes)
+SELECT p.id, g.weather, g.min_days, g.max_days, g.notes
+FROM guideline_data g
+JOIN plants p ON p.slug = g.slug
+ON CONFLICT (plant_id, weather) DO NOTHING;
