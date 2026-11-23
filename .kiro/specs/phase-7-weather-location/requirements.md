@@ -24,13 +24,13 @@ Users shall not receive a general UPDATE permission on `farms`. The farm name an
 
 ### REQ-006: Profile Tab Editing
 
-The Profile tab shall show a "Farm location" field with the current location and a "Save location" button. The button shall be disabled until the text differs from the saved location. The screen shall confirm a save, show a message when saving fails, keep the user's text on failure, and reject text over 100 characters before calling the server.
+The Profile tab shall have no navigation header and shall show a centered, bold "Profile" title in the same style as the calendar title. It shall show a "Farm location" field with the current location and a "Save location" button. The button shall be disabled until the text differs from the saved location. The screen shall confirm a save, show a message when saving fails, keep the user's text on failure, and reject text over 100 characters before calling the server.
 
 ## 2. Weather Widget
 
 ### REQ-007: Widget Placement
 
-The home tab shall show a weather widget in a box that fills the right half of the screen width. The left half shall stay empty for later content.
+The home tab shall have no navigation header and shall show a centered, bold "Home" title in the same style as the calendar title, above a weather widget in a box that fills the right half of the screen width. The left half shall stay empty for later content.
 
 ### REQ-008: Widget Contents
 

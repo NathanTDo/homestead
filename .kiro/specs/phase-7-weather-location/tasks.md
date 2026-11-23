@@ -31,6 +31,8 @@
 - [x] 4.1 Add the `useLocalWeather` hook
 - [x] 4.2 Add `WeatherWidget` with loading, no location, not found and error states
 - [x] 4.3 Lay out the home tab with the widget in the right half
+- [x] 4.5 Replace the navigation header with a bold "Home" title that matches the calendar
+- [x] 4.6 Replace the Profile tab's navigation header with a bold "Profile" title that matches the calendar
 - [x] 4.4 Remove the watering reminders list from the home tab
 
 ## 5. Tests

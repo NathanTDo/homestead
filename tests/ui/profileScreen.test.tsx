@@ -28,6 +28,7 @@ const save = () => screen.getByRole('button', { name: 'Save location' });
 describe('ProfileScreen farm location', () => {
   it('shows the saved location and disables Save until it changes', async () => {
     await render(<ProfileScreen />);
+    expect(screen.getByRole('header', { name: 'Profile' })).toBeTruthy();
     expect(screen.getByLabelText('Farm location').props.value).toBe('94103');
     expect(save().props.accessibilityState.disabled).toBe(true);
   });

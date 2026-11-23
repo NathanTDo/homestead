@@ -8,6 +8,7 @@ This phase gives a farm a location the user can edit, shows the current weather 
 
 ```
 ┌──────────────────────────────┐
+│            Home              │  ← bold title, no navigation header (as on the calendar)
 │ ┌────────────┬─────────────┐ │
 │ │            │ San Francisco│ │
 │ │ (reserved  │ 62°  ☂      │ │
@@ -23,7 +24,8 @@ Two equal flex halves in a row. The right half holds `WeatherWidget`.
 
 | File                                              | Purpose                                                                                                                        |
 | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `app/(tabs)/index.tsx`                            | Home screen: the two-half row                                                                                                  |
+| `app/(tabs)/index.tsx`                            | Home screen: the "Home" title and the two-half row                                                                             |
+| `app/(tabs)/_layout.tsx`                          | Hides the home and profile tabs' navigation headers (`headerShown: false`)                                                     |
 | `app/(tabs)/profile.tsx`                          | Adds the "Farm location" field and save button                                                                                 |
 | `src/components/weather/WeatherWidget.tsx`        | The box. Renders loading, empty, not-found, error and weather states                                                           |
 | `src/features/weather/hooks.ts`                   | `useLocalWeather(location)`: geocode, then fetch current weather, through `useAsyncData`                                       |
@@ -96,6 +98,8 @@ The 45 rows (15 plants, 3 weather bands) are in `supabase/seed.sql`, inserted wi
 
 ## Profile Location Field
 
+The Profile tab draws its own bold "Profile" title like the home and calendar tabs, with the content below it.
+
 State: `draft` text, `saving`, and a `message` (success or error). `changed` is true when the trimmed draft differs from `farm.location`. Save calls `validateLocation`, then `FarmProvider.setLocation`, which calls `updateFarmLocation` and replaces `farm.location` in state with the saved value, so the home tab updates without a reload. Errors are mapped by `describeLocationError`.
 
 ## Watering Guideline Data
@@ -107,7 +111,7 @@ Weather bands match the seed comments: warm above about 75°F, mild about 60 to 
 - `tests/weather/logic.test.ts`: band edges, forecast summary, rain flag, interval text, reminder building.
 - `tests/weather/openMeteo.test.ts`: zip and place geocoding, state preference, blank input, failures, forecast and current weather mapping.
 - `tests/weather/conditions.test.ts`: weather code labels.
-- `tests/ui/homeScreen.test.tsx`: widget values, loading, no location, not found, offline with retry.
+- `tests/ui/homeScreen.test.tsx`: "Home" title, widget values, loading, no location, not found, offline with retry.
 - `tests/ui/profileScreen.test.tsx`: field, disabled button, save, clear, failure, length check.
 - `tests/integration/farm-creation.test.ts`: onboarding saves the location, owner can change and clear it, over-length is rejected, a non-owner cannot change it.
 - Manual: the widget layout on a phone and a tablet.

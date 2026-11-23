@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, FormField } from '@/components/common';
 import { Text, View } from '@/components/Themed';
 import { palette } from '@/constants/Colors';
@@ -12,6 +13,7 @@ import {
 } from '@/features/onboarding';
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets();
   const { profile, session, signOut } = useAuth();
   const { farm, setLocation } = useFarm();
   const email = profile?.email ?? session?.user.email ?? '';
@@ -41,9 +43,12 @@ export default function ProfileScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.flex}
+      style={[styles.flex, { paddingTop: insets.top }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
+      <Text accessibilityRole="header" style={styles.screenTitle}>
+        Profile
+      </Text>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>{name}</Text>
         <Text style={styles.subtitle}>{email}</Text>
@@ -89,6 +94,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   container: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  screenTitle: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginVertical: 12 },
   title: { fontSize: 20, fontWeight: 'bold' },
   subtitle: { fontSize: 14, opacity: 0.6, marginTop: 8 },
   farm: { fontSize: 16, marginTop: 20 },

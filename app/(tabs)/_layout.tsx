@@ -31,6 +31,7 @@ function TabsNavigator() {
         name="index"
         options={{
           title: 'Home',
+          headerShown: false, // the home screen draws its own title, like the calendar
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'home' : 'home-outline'} size={26} color={color as string} />
           ),
@@ -65,6 +66,7 @@ function TabsNavigator() {
         name="profile"
         options={{
           title: 'Profile',
+          headerShown: false, // the profile screen draws its own title, like the calendar
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'person' : 'person-outline'}

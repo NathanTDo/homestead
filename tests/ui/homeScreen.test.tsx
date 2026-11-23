@@ -31,6 +31,7 @@ beforeEach(() => {
 describe('HomeScreen weather widget', () => {
   it('shows the place, current temperature, condition, high and low', async () => {
     await render(<HomeScreen />);
+    expect(screen.getByRole('header', { name: 'Home' })).toBeTruthy();
     expect(screen.queryByText('Test Farm')).toBeNull();
     expect(await screen.findByText('San Francisco')).toBeTruthy();
     expect(screen.getByText('62°')).toBeTruthy();

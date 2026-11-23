@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     minHeight: 120,
     justifyContent: 'center',
   },
-  place: { fontSize: 15, fontWeight: '600' },
+  place: { fontSize: 20, fontWeight: '700' },
   currentRow: {
     backgroundColor: 'transparent',
     flexDirection: 'row',
